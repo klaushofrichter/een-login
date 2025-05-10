@@ -14,6 +14,13 @@ The application uses the EEN APIs, but is otherwise not supported
 by Eagle Eye Networks. Visit the [Eagle Eye Networks Developer Portal](https://developer.eagleeyenetworks.com/)
 for more information about the Eagle Eye Networks APIs. 
 
+
+![GH Pages Deployment](https://github.com/klaushofrichter/een-login/actions/workflows/deploy.yml/badge.svg?event=push&label=GH%20Pages) 
+![CodeQL Check](https://github.com/klaushofrichter/een-login/actions/workflows/codeql.yml/badge.svg?label=CodeQL) 
+![Dev Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fklaushofrichter%2Feen-login%2Frefs%2Fheads%2Fdevelop%2Fpackage.json&query=version&label=develop&color=%2333ca55) 
+![Prod Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fklaushofrichter%2Feen-login%2Frefs%2Fheads%2Fproduction%2Fpackage.json&query=version&label=prod&color=%2333ca55) 
+![GH Pages Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fklaushofrichter%2Feen-login%2Frefs%2Fheads%2Fgh-pages%2Fpackage.json&query=version&label=gh-pages&color=%2333ca55)
+
 ## Features
 
 -   **Secure EEN OAuth2 Authentication:** Implements the standard OAuth2 Authorization Code flow using proxies to protect secrets.

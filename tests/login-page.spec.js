@@ -34,6 +34,7 @@ test.describe('Login Page', () => {
   test('login page should have correct elements and consistent styling', async ({ page }) => {
     console.log(`\n▶️ Running Test: ${test.info().title}\n`)
     console.log('🔍 Starting login page elements test')
+    console.log('🔍 This test checks the login page for the correct elements and consistent styling')
 
     // Check if we're on the login page
     await expect(page.getByText('Welcome to EEN Login')).toBeVisible()
@@ -68,7 +69,10 @@ test.describe('Login Page', () => {
     expect(classAttr).toContain('dark:hover:text-gray-400')
 
     // eslint-disable-next-line playwright/no-conditional-in-test
-    const isDev = process.env.NODE_ENV !== 'production'
+    let isDev = process.env.NODE_ENV !== 'production'
+    if(process.env.PLAYWRIGHT_TEST_BASE_URL === 'https://klaushofrichter.github.io/een-login') 
+      isDev=false  // because we use the deployed app version on GitHub Pages
+
     // eslint-disable-next-line playwright/no-conditional-in-test
     const expectedReadmeHref = isDev
       ? 'https://github.com/klaushofrichter/een-login/blob/develop/README.md'

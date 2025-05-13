@@ -26,8 +26,6 @@ test.describe('Login and Navigation', () => {
       }
       loggedBaseURL = true // Set flag so it doesn't log again
     }
-    // Go to the login page before each test
-    //await page.goto('/')
   })
 
   test('should login successfully and navigate through pages', async ({ page }) => {
@@ -62,6 +60,10 @@ test.describe('Login and Navigation', () => {
 
     // click the "profile" button in the navigation bar
     await clickNavButton(page, 'Profile')
+
+    // click the "home" button in the navigation bar
+    // TODO: fix this test. HOME does not work for the function below 
+    //await clickNavButton(page, 'Home')
 
     // logout
     await logoutFromApplication(page)

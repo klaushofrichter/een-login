@@ -5,6 +5,7 @@ import { navigateToHome, isGitHubPagesEnvironment } from './utils'
 
 // Load environment variables from .env file
 dotenv.config()
+import pkg from '../package.json' assert { type: 'json' }
 
 let loggedBaseURL = false // Flag to ensure baseURL is logged only once
 
@@ -70,14 +71,14 @@ test.describe('Login Page', () => {
 
     // eslint-disable-next-line playwright/no-conditional-in-test
     let isDev = process.env.NODE_ENV !== 'production'
-    if(process.env.PLAYWRIGHT_TEST_BASE_URL === 'https://klaushofrichter.github.io/een-login') 
+    if(process.env.PLAYWRIGHT_TEST_BASE_URL === `https://klaushofrichter.github.io/${pkg.name}`) 
       isDev=false  // because we use the deployed app version on GitHub Pages
 
     // eslint-disable-next-line playwright/no-conditional-in-test
     const expectedReadmeHref = isDev
-      ? 'https://github.com/klaushofrichter/een-login/blob/develop/README.md'
-      : 'https://github.com/klaushofrichter/een-login/blob/gh-pages/README.md'
-    await expect(readme).toHaveAttribute('href', expectedReadmeHref)
+      ? `https://github.com/klaushofrichter/${pkg.name}/blob/develop/README.md`
+      : `https://github.com/klaushofrichter/${pkg.name}/blob/gh-pages/README.md`
+  await expect(readme).toHaveAttribute('href', expectedReadmeHref)
     console.log('✅ README link verified')
     console.log('✅ Login page test completed successfully')
   })

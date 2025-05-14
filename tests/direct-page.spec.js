@@ -2,6 +2,7 @@
 import { test, expect } from '@playwright/test'
 import dotenv from 'dotenv'
 import { isGitHubPagesEnvironment, buildUrl, getLastPartOfUrl } from './utils.js'
+import pkg from '../package.json' assert { type: 'json' }
 
 // Load environment variables from .env file
 dotenv.config()
@@ -88,8 +89,8 @@ test.describe('Direct Page', () => {
     const isDev = process.env.NODE_ENV !== 'production'
     // eslint-disable-next-line playwright/no-conditional-in-test
     const expectedReadmeHref = isDev
-      ? 'https://github.com/klaushofrichter/een-login/blob/develop/README.md'
-      : 'https://github.com/klaushofrichter/een-login/blob/gh-pages/README.md'
+      ? `https://github.com/klaushofrichter/${pkg.name}/blob/develop/README.md`
+      : `https://github.com/klaushofrichter/${pkg.name}/blob/gh-pages/README.md`
     await expect(readme).toHaveAttribute('href', expectedReadmeHref)
     console.log('✅ README link verified')
     console.log('✅ Direct page test completed successfully')

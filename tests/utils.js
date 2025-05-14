@@ -114,7 +114,8 @@ export async function loginToApplication(page) {
   // In GitHub Pages, we need to handle the OAuth flow
   if (isGitHubPagesEnvironment(page)) {
     // Wait for redirect back to our app with code parameter
-    await page.waitForURL(/.*\/${pkg.name}\/\?code=.*/, { timeout: 15000 })
+    //await page.waitForURL(/.*\/${pkg.name}\/\?code=.*/, { timeout: 15000 })
+    await page.waitForURL(new RegExp(`/.*\/${pkg.name}\/\?code=.*/`), { timeout: 15000 })
     console.log('✅ Redirected back to app with code')
 
     // Wait for the code to be processed and redirect to home

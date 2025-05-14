@@ -26,8 +26,8 @@ test.describe('Deep Linking', () => {
       // eslint-disable-next-line playwright/no-conditional-in-test
       if (baseURL) {
         console.log(`\n🚀 Running tests against Service at URL: ${baseURL}`)
-        console.log(`🔒 Using Auth Proxy URL: ${configuredProxyUrl}\n`)
-        console.log(`🔒 Using Redirect URI: ${redirectUri}\n`)
+        console.log(`🔒 Using Auth Proxy URL: ${configuredProxyUrl}`)
+        console.log(`🔒 Using Redirect URI: ${redirectUri}`)
         console.log(`🔒 Using basePath: ${basePath}\n`)
       }
       loggedBaseURL = true // Set flag so it doesn't log again

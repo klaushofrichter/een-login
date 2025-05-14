@@ -13,7 +13,7 @@ jobs:
     env:
       VITE_EEN_CLIENT_ID: ${{ secrets.VITE_EEN_CLIENT_ID }}
       VITE_EEN_CLIENT_SECRET: ${{ secrets.VITE_EEN_CLIENT_SECRET }}
-      VITE_AUTH_PROXY_URL: https://een-login.klaushofrichter.workers.dev
+      VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
       TEST_USER: ${{ secrets.TEST_USER }}
       TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
       PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:3333

@@ -26,18 +26,18 @@
                   </li>
                   <li>
                     <router-link
-                      to="/settings"
-                      class="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
-                    >
-                      Settings
-                    </router-link>
-                  </li>
-                  <li>
-                    <router-link
                       to="/about"
                       class="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
                     >
                       About
+                    </router-link>
+                  </li>
+                  <li>
+                    <router-link
+                      to="/settings"
+                      class="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
+                    >
+                      Settings
                     </router-link>
                   </li>
                 </ul>

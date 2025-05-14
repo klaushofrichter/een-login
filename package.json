@@ -1,7 +1,7 @@
 {
   "name": "een-login",
-  "version": "0.1.37",
-  "lastCommit": "May 10, 2025, 05:12 PM CDT",
+  "version": "0.1.41",
+  "lastCommit": "May 13, 2025, 08:14 PM CDT",
   "private": true,
   "type": "module",
   "base": "/een-login/",
@@ -17,7 +17,7 @@
     "gh-deploy-help": "gh-pages --help",
     "pre-commit": "npm run version:patch",
     "test": "playwright test",
-    "test-preview": "npm run build && npx playwright test --config playwright.preview.config.js",
+    "test-preview": "npm run build && npx playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug"

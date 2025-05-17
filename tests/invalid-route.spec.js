@@ -80,7 +80,7 @@ test.describe('Invalid Route Navigation', () => {
     await page.getByRole('navigation').getByRole('link', { name: 'About' }).click()
     await page.waitForURL(/.*\/about$/, { timeout: 10000 })
     await expect(page.getByRole('heading', { name: 'About' })).toBeVisible({ timeout: 10000 })
-    await expect(page.getByRole('heading', { name: 'About EEN Login' })).toBeVisible({
+    await expect(page.getByRole('heading', { name: 'About ' + APP_NAME })).toBeVisible({
       timeout: 10000
     })
     console.log('✅ About page displayed correctly')

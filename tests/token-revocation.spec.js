@@ -206,7 +206,10 @@ test.describe('Token Revocation', () => {
     console.log('✅ Back to Login button clicked')
 
     // check that we are on the login page
-    await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible({ timeout: 10000 })
+    // await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible({ timeout: 10000 })
+    await page
+      .getByText('Sign in with Eagle Eye Networks')
+      .waitFor({ state: 'visible', timeout: 10000 })
     console.log('✅ Login page displayed correctly')
 
     console.log('✅ Token revocation test completed successfully')

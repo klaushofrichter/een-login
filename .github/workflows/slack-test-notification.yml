@@ -21,11 +21,16 @@ jobs:
         run: |
           # Get the version from the same commit that was tested
           VERSION=$(node -p 'require("./package.json").version')
+          echo "Version: $VERSION"
+
           LAST_COMMIT=$(node -p 'require("./package.json").lastCommit')
+          echo "Last Commit: $LAST_COMMIT"
+
           # Convert UTC to Central Time (America/Chicago timezone)
           ct_time=$(TZ=America/Chicago date -d "$LAST_COMMIT")
-          formatted_ct_time=$(date -d "$ct_time" "+%Y-%m-%dT%H:%M:%S America/Chicago")
-          echo "LAST_COMMIT="$formatted_ct_time" >> $GITHUB_OUTPUT
+          formatted_ct_time=$(date -d "$ct_time" +"%Y-%m-%dT%H:%M:%S America/Chicago")
+          echo "LAST_COMMIT=$formatted_ct_time" >> $GITHUB_OUTPUT
+          echo "LAST_COMMIT after reformat to CT: $formatted_ct_time"
 
           cat package.json
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
@@ -38,7 +43,8 @@ jobs:
       - name: Get repository name
         id: repo-name
         run: |
-          REPO_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)
+          #REPO_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)
+          REPO_NAME="production"  # this is testing production only... (?)
           echo "REPO_NAME: $REPO_NAME"
           echo "REPO_NAME=$REPO_NAME" >> $GITHUB_OUTPUT
 
@@ -93,7 +99,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Repository:* <https://github.com/${{ github.repository }}|${{ github.repository }}\n*Branch:* <https://github.com/${{ github.repository }}/tree/${{ github.event.workflow_run.head_branch }}|${{ github.event.workflow_run.head_branch }}\n*Build Date:* ${{ steps.package-version.outputs.LAST_COMMIT }}"
+                    "text": "*Repository:* <https://github.com/${{ github.repository }}|${{ github.repository }}>\n*Branch:* <https://github.com/${{ steps.site-name.outputs.SITE_NAME }}/tree/${{ steps.repo-name.outputs.REPO_NAME }}|${{ steps.repo-name.outputs.REPO_NAME }}\n*Build Date:* ${{ steps.package-version.outputs.LAST_COMMIT }}"
                   }
                 },
                 {

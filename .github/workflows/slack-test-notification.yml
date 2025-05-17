@@ -48,6 +48,11 @@ jobs:
           echo "BRANCH_NAME: $BRANCH_NAME"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
+          # test complete date
+          TEST_COMPLETE_DATE=$(TZ=America/Chicago date -d "${{ github.event.workflow_run.updated_at }}")
+          echo "TEST_COMPLETE_DATE=$TEST_COMPLETE_DATE" >> $GITHUB_OUTPUT
+          echo "TEST_COMPLETE_DATE: $TEST_COMPLETE_DATE"
+
       - name: Get GH Pages Site Name
         id: site-name
         run: |
@@ -91,7 +96,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "${{ github.event.workflow_run.conclusion == 'success' && '✅ GH Pages Tests Passed on ' || '❌ GH Pages Tests Failed on ' }}${{ github.repository }} (v${{ steps.package-version.outputs.VERSION }})",
+                    "text": "${{ github.event.workflow_run.conclusion == 'success' && '✅ GH Pages Tests Passed on ' || '❌ GH Pages Tests Failed on ' }}${{ steps.package-version.outputs.REPO_NAME }} (v${{ steps.package-version.outputs.VERSION }})",
                     "emoji": true
                   }
                 },
@@ -99,7 +104,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Repository:* <https://github.com/${{ github.repository }}|${{ github.repository }}>\n*Branch:* <https://github.com/${{ steps.site-name.outputs.SITE_NAME }}/tree/${{ steps.package-version.outputs.REPO_NAME }}|${{ steps.package-version.outputs.REPO_NAME }}>\n*Build Date:* ${{ steps.package-version.outputs.LAST_COMMIT }}"
+                    "text": "*Repository:* <https://github.com/${{ github.repository }}|${{ github.repository }}>\n*Branch:* <https://github.com/${{ github.repository }}/tree/${{ steps.package-version.outputs.BRANCH_NAME }}|${{ steps.package-version.outputs.BRANCH_NAME }}>\n*Build Date:* ${{ steps.package-version.outputs.LAST_COMMIT }}"
                   }
                 },
                 {
@@ -145,7 +150,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": "Test completed at: ${{ github.event.workflow_run.updated_at }}"
+                      "text": "Test completed at: ${{ steps.package-version.outputs.TEST_COMPLETE_DATE }}"
                     }
                   ]
                 }

@@ -6,8 +6,8 @@ on:
     types:
       - completed
     branches:
-      - production
-      
+      - production, develop
+
 jobs:
   notify-slack:
     runs-on: ubuntu-latest

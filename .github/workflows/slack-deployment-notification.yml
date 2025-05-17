@@ -35,6 +35,12 @@ jobs:
           REPO_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)
           echo "REPO_NAME=$REPO_NAME" >> $GITHUB_OUTPUT
 
+      - name: Get GH Pages Site Name
+        id: site-name
+        run: |
+          SITE_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 1)
+          echo "SITE_NAME=$SITE_NAME" >> $GITHUB_OUTPUT
+
       - name: Send Slack notification
         uses: slackapi/slack-github-action@v1.25.0
         with:
@@ -74,7 +80,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Deployment URL:* <https://klaushofrichter.github.io/${{ steps.repo-name.outputs.REPO_NAME }}/|View Site>"
+                    "text": "*Deployment URL:* <https://${{ steps.site-name.outputs.SITE_NAME }}.github.io/${{ steps.repo-name.outputs.REPO_NAME }}/|Vhttps://${{ steps.site-name.outputs.SITE_NAME }}.github.io>"
                   }
                 },
                 {

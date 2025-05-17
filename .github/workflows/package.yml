@@ -37,7 +37,7 @@ jobs:
           ls -la artifacts
           REPO_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2) 
           echo "repo_name: $REPO_NAME"
-          echo "$REPO_NAME" >> $GITHUB_OUTPUT
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_OUTPUT
           echo "version: ${{ steps.package-version.outputs.version }}"
           echo "repository: ${{ github.repository }}"
           echo "artifacts: artifacts/${REPO_NAME}-src_v${{ steps.package-version.outputs.version }}.zip"
@@ -52,12 +52,13 @@ jobs:
             -x "**/config.*" \
             -x "**/credentials.*" \
             -x "**/*.zip"
+          ls -al artifacts
 
       - name: Upload source code artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.repository }}-src
-          path: artifacts/${{ steps.create-source-code-package.outputs.repo_name }}-src_v${{ steps.package-version.outputs.version }}.zip
+          path: artifacts/${{ steps.create-source-code-package.outputs.REPO_NAME }}-src_v${{ steps.package-version.outputs.version }}.zip
           retention-days: 5
 
       - name: Create GitHub Release
@@ -65,7 +66,7 @@ jobs:
         with:
           tag_name: v${{ steps.package-version.outputs.version }}
           name: Release v${{ steps.package-version.outputs.version }}
-          files: artifacts/${{ steps.create-source-code-package.outputs.repo_name }}-src_v${{ steps.package-version.outputs.version }}.zip
+          files: artifacts/${{ steps.create-source-code-package.outputs.REPO_NAME }}-src_v${{ steps.package-version.outputs.version }}.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

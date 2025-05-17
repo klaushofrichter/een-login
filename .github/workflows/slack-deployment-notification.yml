@@ -80,7 +80,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Deployment URL:* <https://${{ steps.site-name.outputs.SITE_NAME }}.github.io/${{ steps.repo-name.outputs.REPO_NAME }}/|Vhttps://${{ steps.site-name.outputs.SITE_NAME }}.github.io>"
+                    "text": "*Deployment URL:* <https://${{ steps.site-name.outputs.SITE_NAME }}.github.io/${{ steps.repo-name.outputs.REPO_NAME }}/|https://${{ steps.site-name.outputs.SITE_NAME }}.github.io/${{ steps.repo-name.outputs.REPO_NAME }}>"
                   }
                 },
                 {

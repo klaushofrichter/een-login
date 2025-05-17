@@ -25,6 +25,8 @@ jobs:
           cat package.json
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "LAST_COMMIT=$LAST_COMMIT" >> $GITHUB_OUTPUT
+          echo ""
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
           echo "Last Commit: $LAST_COMMIT"
           echo "Version: $VERSION"
 
@@ -49,6 +51,9 @@ jobs:
           # Replace newlines with spaces and escape quotes
           message="${message//$'\n'/ }"
           message="${message//\"/\\\"}"
+          # replace '`' with '"'
+          message="${message//\`/\\\"}"
+          echo "MESSAGE: $message"
           echo "MESSAGE=$message" >> $GITHUB_OUTPUT
 
       - name: Calculate duration

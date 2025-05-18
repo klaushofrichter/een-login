@@ -127,7 +127,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Construct path based on whether we target the local proxy or remote
     const relativePath = '/proxy/revoke'
     const requestUrl = `${AUTH_PROXY_URL}${relativePath}`
-    console.log(`[auth.js] Fetching: ${requestUrl}`)
+    //console.log(`[auth.js] Fetching: ${requestUrl}`)
 
     try {
       const response = await fetch(requestUrl, {
@@ -154,7 +154,7 @@ export const useAuthStore = defineStore('auth', () => {
       userProfile: userProfile.value,
       refreshToken: refreshToken.value
     }
-    console.log('tempCredentials', tempCredentials)
+    //console.log('tempCredentials', tempCredentials)
 
     // Clear store values
     token.value = null

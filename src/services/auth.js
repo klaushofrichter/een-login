@@ -13,7 +13,7 @@ const AUTH_PROXY_URL = import.meta.env.VITE_AUTH_PROXY_URL || 'http://127.0.0.1:
 //console.log(`[auth.js] Using ${REDIRECT_URI} for the redirect URI and ${CLIENT_ID} for the client ID`)
 
 export const getAuthUrl = () => {
-  console.log(`[auth.js] Using ${REDIRECT_URI} for the redirect URI`)
+  //console.log(`[auth.js] Using ${REDIRECT_URI} for the redirect URI`)
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     redirect_uri: REDIRECT_URI,

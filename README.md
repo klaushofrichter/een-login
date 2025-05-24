@@ -353,7 +353,6 @@ The tests cover:
 -   **HTTPS:** Essential for both the frontend application and the Cloudflare Worker URL.
 
 
-
 ## Slack Integration
 
 This project integrates with Slack to notify you about important events, such as new production builds and workflow executions.
@@ -382,7 +381,9 @@ This integration helps keep your team informed about important updates and chang
 This application does not provide a lot of functionality, it is intended as a framework for other
 applications. For example:
 
--   **Adding New Pages/Views:** Change Views in `src/views` and extend the router 
+-   **Adding New Pages/Views:** Change Views in `src/views` and extend the router. One example is 
+[here](https://github.com/klaushofrichter/een-capture), where an additional secure connection 
+to Firebase is added plus application logic.
 -   **Modifying UI:** Add Views in `src/views` and Components in `src/components`
 -   **Interacting with More EEN APIs:** Add functions in `src/services/` to make authenticated calls (using the access token from `authStore`)
 -   **Testing:** Add tests in 'tests'

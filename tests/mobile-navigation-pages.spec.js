@@ -23,11 +23,13 @@ test.describe('Mobile Navigation - Page Navigation', () => {
     if (!loggedBaseURL) {
       const baseURL = page.context()._options.baseURL
       const configuredProxyUrl = process.env.VITE_AUTH_PROXY_URL || 'http://127.0.0.1:3333' // Default logic
+      const redirectUri = process.env.VITE_REDIRECT_URI || 'http://127.0.0.1:3333'
       basePath = getLastPartOfUrl(baseURL)
       if (baseURL) {
         console.log(`\n🚀 Running tests against Service at URL: ${baseURL}`)
-        console.log(`🔒 Using Auth Proxy URL: ${configuredProxyUrl}\n`)
-        console.log(`🔍 Base path: ${basePath}`)
+        console.log(`🔒 Using Auth Proxy URL: ${configuredProxyUrl}`)
+        console.log(`🔒 Using Redirect URI: ${redirectUri}`)
+        console.log(`� Using basePath: ${basePath}\n`)
       }
       loggedBaseURL = true // Set flag so it doesn't log again
     }

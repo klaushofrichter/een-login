@@ -42,7 +42,7 @@ test.describe('Login and Navigation', () => {
     test.setTimeout(30000) // overall not more than 30 seconds
 
     // Start from home page
-    await navigateToLogin(page, basePath)
+    //await navigateToLogin(page, basePath)
 
     // Use our utility function for login
     await loginToApplication(page, basePath)

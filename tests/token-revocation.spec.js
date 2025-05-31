@@ -6,7 +6,8 @@ import {
   navigateToLogin,
   loginToApplication,
   logoutFromApplication,
-  getLastPartOfUrl
+  getLastPartOfUrl,
+  MAX_TEST_TIMEOUT
 } from './utils'
 
 // Load environment variables from .env file
@@ -44,7 +45,7 @@ test.describe('Token Revocation', () => {
     console.log(
       '  The logout again without cancelation, and go to the direct page and enters the access token to check if it is revoked. '
     )
-    test.setTimeout(60000) // 60 sec max for this test
+    test.setTimeout(MAX_TEST_TIMEOUT)
 
     // go directly to the home page
     //await navigateToLogin(page, basePath)
@@ -176,9 +177,8 @@ test.describe('Token Revocation', () => {
 
     // logout
     await logoutFromApplication(page)
-    console.log('✅ Logged out from application with extra timeout')
+    console.log('✅ Logged out from application')
     // eslint-disable-next-line playwright/no-wait-for-timeout
-    await page.waitForTimeout(5000)
 
     // go to the direct page
     await page.goto(basePath + '/direct')

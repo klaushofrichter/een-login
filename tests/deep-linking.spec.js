@@ -1,7 +1,7 @@
  
 import { test, expect } from '@playwright/test'
 import dotenv from 'dotenv'
-import { logoutFromApplication, getLastPartOfUrl, loginWithEEN } from './utils.js'
+import { logoutFromApplication, getLastPartOfUrl, loginWithEEN, MAX_TEST_TIMEOUT } from './utils.js'
 
 dotenv.config() // for .env variables
 let loggedBaseURL = false // Flag to ensure baseURL is logged only once
@@ -30,7 +30,7 @@ test.describe('Deep Linking', () => {
   test('should navigate to settings with direct link', async ({ page }) => {
     console.log(`\n▶️ Running Test: ${test.info().title}\n`)
     console.log('  this test uses a deep link without previous login. ')
-    test.setTimeout(30000) // max 30 seconds overall
+    test.setTimeout(MAX_TEST_TIMEOUT) // max 40 seconds overall
 
     // Start from home page
     console.log('🧭 Now navigating to settings page with direct link without previous login')

@@ -1,9 +1,12 @@
  
 import { test, expect } from '@playwright/test'
 import dotenv from 'dotenv'
-import { navigateToLogin, getLastPartOfUrl } from './utils.js'
-import pkg from '../package.json' with { type: 'json' }
+import { navigateToLogin, getLastPartOfUrl, MAX_TEST_TIMEOUT } from './utils.js'
+import { createRequire } from 'module'
 import { APP_NAME } from '../src/constants.js'
+
+const require = createRequire(import.meta.url)
+const pkg = require('../package.json')
 
 // Load environment variables from .env file
 dotenv.config()
@@ -38,6 +41,7 @@ test.describe('Login Page', () => {
     console.log(
       '🔍 This test checks the login page for the correct elements and consistent styling'
     )
+    test.setTimeout(MAX_TEST_TIMEOUT) 
 
     // Check if we're on the login page
     await navigateToLogin(page, basePath)

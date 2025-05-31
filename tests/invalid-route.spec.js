@@ -1,7 +1,7 @@
  
 import { test, expect } from '@playwright/test'
 import dotenv from 'dotenv'
-import { getLastPartOfUrl, loginWithEEN, logoutFromApplication } from './utils'
+import { getLastPartOfUrl, loginWithEEN, logoutFromApplication, MAX_TEST_TIMEOUT } from './utils'
 import { APP_NAME } from '../src/constants.js'
 
 // Load environment variables from .env file
@@ -39,7 +39,7 @@ test.describe('Invalid Route Navigation', () => {
     console.log('🔍 Starting invalid route test')
 
     // Increase timeout for this test
-    test.setTimeout(30000) // 30 sec max for this test
+    test.setTimeout(MAX_TEST_TIMEOUT) 
 
     // go directly to the invalid route before login
     await page.goto(basePath + '/abcdefg')

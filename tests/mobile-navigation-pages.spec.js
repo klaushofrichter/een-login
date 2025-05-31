@@ -4,7 +4,8 @@ import {
   loginToApplication,
   logoutFromApplication,
   getLastPartOfUrl,
-  clickMobileNavButton
+  clickMobileNavButton,
+  MAX_TEST_TIMEOUT
 } from './utils'
 import { APP_NAME } from '../src/constants.js'
 
@@ -42,6 +43,7 @@ test.describe('Mobile Navigation - Page Navigation', () => {
   test('should navigate through all pages via mobile menu', async ({ page }) => {
     console.log(`\n▶️ Running Test: ${test.info().title}\n`)
     console.log('🔍 Starting mobile page navigation test')
+    test.setTimeout(MAX_TEST_TIMEOUT) 
 
     // Login before each test
     await loginToApplication(page, basePath)

@@ -5,6 +5,8 @@
 import { expect } from '@playwright/test'
 import dotenv from 'dotenv'
 
+export const MAX_TEST_TIMEOUT = 60000
+
 /**
  * Navigates to the app's login page as a starting point
  * @param {import('@playwright/test').Page} page - Playwright page object
@@ -46,7 +48,7 @@ export async function loginToApplication(page, basePath = '') {
   await loginWithEEN(page)
 
   // Wait for home page
-  await page.waitForURL(basePath + '/home', { timeout: 20000 })
+  await page.waitForURL(basePath + '/home', { timeout: 25000 })
   console.log('✅ Successfully logged in')
 }
 

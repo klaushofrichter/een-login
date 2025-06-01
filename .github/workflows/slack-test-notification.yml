@@ -63,14 +63,10 @@ jobs:
       - name: Prepare commit message
         id: commit-message
         run: |
-          message=$( echo "${{ github.event.workflow_run.head_commit.message }}" | sed 's/\\n/ /g' | sed 's/\\"/\\\"/g' | sed 's/\\`/\\\"/g' )
-          #message="${{ github.event.workflow_run.head_commit.message }}"
+          message="${{ github.event.workflow_run.head_commit.message }}"
           # Replace newlines with spaces and escape quotes
-          #message="${message//$'\n'/ }"
-          #message="${message//\"/\\\"}"
-          # replace '`' with '"'  - sometimes the commit message contains a backtick
-          #message="${message//\`/\\\"}"
-          echo "MESSAGE w/o backticks: $message"
+          message="${message//$'\n'/ }"
+          message="${message//\"/\\\"}"
           echo "MESSAGE=$message" >> $GITHUB_OUTPUT
 
       - name: Calculate duration

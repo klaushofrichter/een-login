@@ -152,8 +152,8 @@ const lastCommitDate = computed(() => {
 })
 const readmeUrl = computed(() =>
   import.meta.env.DEV
-    ? 'https://github.com/klaushofrichter/'+packageJson.name+'/blob/develop/README.md'
-    : 'https://github.com/klaushofrichter/'+packageJson.name+'/blob/gh-pages/README.md'
+    ? 'https://github.com/klaushofrichter/' + packageJson.name + '/blob/develop/README.md'
+    : 'https://github.com/klaushofrichter/' + packageJson.name + '/blob/gh-pages/README.md'
 )
 
 async function handleSubmit() {

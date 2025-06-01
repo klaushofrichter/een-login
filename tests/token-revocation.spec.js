@@ -1,7 +1,6 @@
- 
 import { test, expect } from '@playwright/test'
 import dotenv from 'dotenv'
- 
+
 import {
   navigateToLogin,
   loginToApplication,
@@ -85,7 +84,7 @@ test.describe('Token Revocation', () => {
     const expirationTimeInput = page.locator('#expiration-time')
     await expect(expirationTimeInput).toBeVisible({ timeout: 10000 })
     console.log('✅ Expiration time input field found correctly')
-    const expirationTime = await expirationTimeInput.inputValue()
+    const expirationTime = await expirationTimeInput.textContent()
     console.log('✅ Expiration time retrieved from input field:', expirationTime)
     expect(expirationTime).toContain('more than')
 
@@ -98,11 +97,11 @@ test.describe('Token Revocation', () => {
     await expect(refreshToken).toHaveValue('Available')
 
     // SECOND PAGE SPAWN HERE - ANONYMOUS
-    // open a new context 
-    const anonymousContext = await browser.newContext();
+    // open a new context
+    const anonymousContext = await browser.newContext()
 
     // Create a new page within the anonymous context
-    const secondPage = await anonymousContext.newPage();
+    const secondPage = await anonymousContext.newPage()
     await secondPage.goto(basePath + '/direct')
     await expect(secondPage.getByRole('heading', { name: 'Direct' })).toBeVisible({
       timeout: 10000
@@ -119,7 +118,9 @@ test.describe('Token Revocation', () => {
     console.log('✅ P2: Proceed button clicked')
 
     // wait for the home page to be visible
-    await expect(secondPage.getByText('You have successfully logged in to your Eagle Eye Networks account')).toBeVisible({
+    await expect(
+      secondPage.getByText('You have successfully logged in to your Eagle Eye Networks account')
+    ).toBeVisible({
       timeout: 10000
     })
     console.log('✅ P2: Home page displayed correctly')
@@ -131,19 +132,19 @@ test.describe('Token Revocation', () => {
     })
     console.log('✅ P2: Profile page displayed correctly')
 
-    // find the refresh token input field and read its value  
+    // find the refresh token input field and read its value
     const secondRefreshTokenInput = secondPage.locator('#refresh-token')
     await expect(secondRefreshTokenInput).toBeVisible({ timeout: 10000 })
     console.log('✅ P2: Refresh token input field found correctly')
     const secondRefreshToken = secondRefreshTokenInput
     console.log('✅ P2: Refresh token retrieved from input field:', secondRefreshToken)
     await expect(secondRefreshToken).toHaveValue('No Refresh Token available')
-    
+
     // find and read the expiration time
     const secondExpirationTimeInput = secondPage.locator('#expiration-time')
     await expect(secondExpirationTimeInput).toBeVisible({ timeout: 10000 })
     console.log('✅ P2: Expiration time input field found correctly')
-    const secondExpirationTime = await secondExpirationTimeInput.inputValue()
+    const secondExpirationTime = await secondExpirationTimeInput.textContent()
     console.log('✅ P2: Expiration time retrieved from input field:', secondExpirationTime)
     expect(secondExpirationTime).toContain('Token expiration date is unknown')
 
@@ -166,7 +167,7 @@ test.describe('Token Revocation', () => {
     await cancelButton.click()
 
     // read the expiration time again
-    const expirationTimeAfterCancel = await expirationTimeInput.inputValue()
+    const expirationTimeAfterCancel = await expirationTimeInput.textContent()
     console.log('✅ Expiration time after cancel:', expirationTimeAfterCancel)
     expect(expirationTimeAfterCancel).toContain('more than')
 

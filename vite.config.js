@@ -326,11 +326,13 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: 3333,
       host: '127.0.0.1',
+      strictPort: true,
       proxy: {}
     },
     preview: {
       port: 3333,
-      host: '127.0.0.1'
+      host: '127.0.0.1',
+      strictPort: true
     },
     build: {
       outDir: 'dist',

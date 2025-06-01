@@ -126,12 +126,12 @@
                     >
                     <div class="flex items-center space-x-2">
                       <div class="flex-1">
-                        <input
+                        <div
                           :id="'expiration-time'"
-                          :value="tokenExpirationText"
-                          readonly
-                          class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm sm:text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
-                        />
+                          class="block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm sm:text-sm dark:bg-gray-800 dark:text-gray-100 px-3 py-2 bg-gray-50 dark:bg-gray-700 break-words"
+                        >
+                          {{ tokenExpirationText }}
+                        </div>
                       </div>
                     </div>
                   </div>

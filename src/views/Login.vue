@@ -22,7 +22,8 @@
     <div class="absolute bottom-4 flex items-center space-x-2 text-xs">
       <span class="text-gray-400 dark:text-gray-500">v{{ appVersion }}</span>
       <span v-if="lastCommitDate" class="text-gray-400 dark:text-gray-500"
-        >|  {{ lastCommitDate }}</span>
+        >| {{ lastCommitDate }}</span
+      >
       <span class="text-gray-400 dark:text-gray-500">|</span>
       <a
         :href="readmeUrl"
@@ -76,8 +77,8 @@ const hasOAuthCode = computed(() => !!route.query.code)
 
 const readmeUrl = computed(() =>
   import.meta.env.DEV
-    ? 'https://github.com/klaushofrichter/'+packageJson.name+'/blob/develop/README.md'
-    : 'https://github.com/klaushofrichter/'+packageJson.name+'/blob/gh-pages/README.md'
+    ? 'https://github.com/klaushofrichter/' + packageJson.name + '/blob/develop/README.md'
+    : 'https://github.com/klaushofrichter/' + packageJson.name + '/blob/gh-pages/README.md'
 )
 
 onMounted(async () => {

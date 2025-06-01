@@ -230,7 +230,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (hostname.value) localStorage.setItem('hostname', hostname.value)
       if (port.value) localStorage.setItem('port', String(port.value))
       if (refreshToken.value) localStorage.setItem('refresh_token', refreshToken.value)
-      if (tokenExpiration.value) localStorage.setItem('token_expiration', tokenExpiration.value.toString())
+      if (tokenExpiration.value)
+        localStorage.setItem('token_expiration', tokenExpiration.value.toString())
 
       // Clear temporary credentials
       tempCredentials = null

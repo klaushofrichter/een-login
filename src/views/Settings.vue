@@ -52,7 +52,14 @@
               </div>
 
               <!-- Admin Settings - Only show for Hofrichter -->
-              <div v-if="isHofrichter" class="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div v-if="isLoadingProfile" class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h4 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">Admin</h4>
+                <div class="flex items-center space-x-2">
+                  <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400"></div>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">Checking admin permissions...</span>
+                </div>
+              </div>
+              <div v-else-if="isHofrichter" class="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <h4 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">Admin</h4>
                 <div class="space-y-4">
                   <div class="flex items-center space-x-4">
@@ -188,11 +195,15 @@
 import { onMounted, computed, ref } from 'vue'
 import { useThemeStore } from '../stores/theme'
 import { useAuthStore } from '../stores/auth'
+import { userService } from '../services/user'
 import { APP_NAME } from '../constants'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
 const theme = computed(() => themeStore.theme)
+
+// Add loading state for profile
+const isLoadingProfile = ref(false)
 
 // State for admin functionality
 const isRemovingSessions = ref(false)
@@ -211,6 +222,32 @@ const isHofrichter = computed(() => {
 
 const setTheme = newTheme => {
   themeStore.setTheme(newTheme)
+}
+
+const fetchUserProfile = async () => {
+  if (!authStore.baseUrl || !authStore.token) {
+    return
+  }
+
+  if (authStore.userProfile) {
+    return
+  }
+
+  isLoadingProfile.value = true
+
+  try {
+    const data = await userService.getUserProfile()
+    authStore.setUserProfile({
+      id: data.id,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email
+    })
+  } catch (error) {
+    console.error('Failed to load profile for admin check:', error)
+  } finally {
+    isLoadingProfile.value = false
+  }
 }
 
 const removeAllSessions = async () => {
@@ -265,8 +302,12 @@ const confirmRemoveSessions = () => {
   removeAllSessions()
 }
 
-onMounted(() => {
+onMounted(async () => {
   document.title = `${APP_NAME} - Settings`
+  
+  // Fetch user profile first to ensure we have the lastName for admin check
+  await fetchUserProfile()
+  
   // Only fetch session count and version if user is Hofrichter
   if (isHofrichter.value) {
     fetchSessionCount()

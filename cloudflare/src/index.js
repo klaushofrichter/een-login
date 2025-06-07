@@ -248,13 +248,31 @@ export default {
         ?.split('=')[1]
 
       if (!currentSessionId) {
-        return new Response('Session ID cookie missing', { status: 401 })
+        return new Response(
+          JSON.stringify({ error: 'Session ID cookie missing' }),
+          { 
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders
+            }
+          }
+        )
       }
 
       // Verify the current session exists in KV storage
       const currentRefreshToken = await env.EEN_LOGIN.get(currentSessionId)
       if (!currentRefreshToken) {
-        return new Response('Invalid or expired session', { status: 401 })
+        return new Response(
+          JSON.stringify({ error: 'Invalid or expired session' }),
+          { 
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders
+            }
+          }
+        )
       }
 
       try {
@@ -289,7 +307,16 @@ export default {
         )
       } catch (error) {
         console.error('Error removing sessions:', error)
-        return new Response('Internal server error', { status: 500 })
+        return new Response(
+          JSON.stringify({ error: 'Internal server error' }),
+          { 
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders
+            }
+          }
+        )
       }
     }
 
@@ -381,13 +408,31 @@ export default {
         ?.split('=')[1]
 
       if (!sessionId) {
-        return new Response('Session ID cookie missing', { status: 401 })
+        return new Response(
+          JSON.stringify({ error: 'Session ID cookie missing' }),
+          { 
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders
+            }
+          }
+        )
       }
 
       // Verify the current session exists in KV storage
       const refreshToken = await env.EEN_LOGIN.get(sessionId)
       if (!refreshToken) {
-        return new Response('Invalid session', { status: 401 })
+        return new Response(
+          JSON.stringify({ error: 'Invalid session' }),
+          { 
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders
+            }
+          }
+        )
       }
 
       try {
@@ -406,7 +451,16 @@ export default {
           }
         )
       } catch (error) {
-        return new Response('Failed to get session count', { status: 500 })
+        return new Response(
+          JSON.stringify({ error: 'Failed to get session count' }),
+          { 
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders
+            }
+          }
+        )
       }
     }
 

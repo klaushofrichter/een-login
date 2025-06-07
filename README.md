@@ -110,6 +110,10 @@ This setup involves configuring both the frontend Vue application and deploying 
        # The URL of your DEPLOYED Cloudflare Worker (from step 3)
        VITE_AUTH_PROXY_URL=https://your-worker-name.your-account.workers.dev
 
+       # === Admin Configuration ===
+       # Email address that grants access to admin features in Settings page
+       VITE_EEN_ADMIN_EMAIL=klaus+developer@klaushofrichter.net
+
        # === E2E Testing Configuration (Optional) ===
        TEST_USER=your_test_een_username@example.com
        TEST_PASSWORD=your_test_een_password
@@ -117,6 +121,7 @@ This setup involves configuring both the frontend Vue application and deploying 
        *   Replace `YOUR_EEN_CLIENT_ID` with your EEN Client ID.
        *   Replace `VITE_AUTH_PROXY_URL` with your actual deployed worker URL.
        *   **`VITE_EEN_CLIENT_SECRET`: This is **not used by the frontend application** when targeting the deployed worker (it lives securely in the worker environment). However, it **is required** in this `.env` file **if you use the `./cloudflare/deploy.sh` script** to push secrets to Cloudflare.
+       *   **`VITE_EEN_ADMIN_EMAIL`**: Set this to the email address that should have access to admin features (session management, version info) in the Settings page. Defaults to `klaus+developer@klaushofrichter.net` if not specified.
        *   Add `TEST_USER` and `TEST_PASSWORD` if you intend to run the full end-to-end tests.
 
 **3. Configure Cloudflare Worker:**
@@ -173,6 +178,8 @@ This is controlled by the `VITE_AUTH_PROXY_URL` variable in your root `.env` fil
         VITE_EEN_CLIENT_SECRET=YOUR_EEN_CLIENT_SECRET
         # Set to local server (or leave unset to default to local):
         VITE_AUTH_PROXY_URL=http://127.0.0.1:3333
+        # Admin email for Settings page features:
+        VITE_EEN_ADMIN_EMAIL=klaus+developer@klaushofrichter.net
         ```
     *   When configured this way, the frontend will make requests to `/proxy/getAccessToken` and `/proxy/refreshAccessToken` on the Vite server, which are handled by the built-in plugin in `vite.config.js`. 
 
@@ -185,6 +192,7 @@ This is controlled by the `VITE_AUTH_PROXY_URL` variable in your root `.env` fil
         VITE_EEN_CLIENT_ID=YOUR_EEN_CLIENT_ID
         VITE_EEN_CLIENT_SECRET=YOUR_EEN_CLIENT_SECRET
         VITE_AUTH_PROXY_URL=https://your-worker-name.your-account.workers.dev
+        VITE_EEN_ADMIN_EMAIL=klaus+developer@klaushofrichter.net
         ```
     *   When configured this way, the frontend will make requests directly to `/getAccessToken` and `/refreshAccessToken` on your Cloudflare worker URL.
 

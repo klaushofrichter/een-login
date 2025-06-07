@@ -51,7 +51,7 @@
                 </div>
               </div>
 
-              <!-- Admin Settings - Only show for Hofrichter -->
+              <!-- Admin Settings - Only show for admin users -->
               <div v-if="isLoadingProfile" class="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <h4 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">Admin</h4>
                 <div class="flex items-center space-x-2">
@@ -59,7 +59,7 @@
                   <span class="text-sm text-gray-500 dark:text-gray-400">Checking admin permissions...</span>
                 </div>
               </div>
-              <div v-else-if="isHofrichter" class="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div v-else-if="shouldShowAdminContent" class="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <h4 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">Admin</h4>
                 <div class="space-y-4">
                   <div class="flex items-center space-x-4">
@@ -105,9 +105,6 @@
                     </div>
                   </div>
                 </div>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  This will log out all other devices while keeping your current session active.
-                </p>
               </div>
             </div>
           </div>
@@ -168,7 +165,7 @@
                 </h3>
                 <div class="mt-2">
                   <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Are you sure you want to remove all remote sessions? This will log out all other devices while keeping your current session active.
+                    Are you sure you want to remove all remote sessions?
                   </p>
                   <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     This action cannot be undone.
@@ -210,14 +207,24 @@ const isRemovingSessions = ref(false)
 const showDialog = ref(false)
 const showConfirmDialog = ref(false)
 const dialogMessage = ref('')
-const isLoadingSessionCount = ref(true)
+const isLoadingSessionCount = ref(false)
 const sessionCount = ref(null)
-const isLoadingVersion = ref(true)
+const isLoadingVersion = ref(false)
 const versionInfo = ref(null)
 
-// Check if user is Hofrichter
-const isHofrichter = computed(() => {
-  return authStore.userProfile?.lastName === 'Hofrichter'
+// Check if user is admin based on email
+const isAdmin = computed(() => {
+  // Only return true if we have a loaded profile and the email matches
+  if (!authStore.userProfile?.email) {
+    return false
+  }
+  const adminEmail = import.meta.env.VITE_EEN_ADMIN_EMAIL || 'klaus+developer@klaushofrichter.net'
+  return authStore.userProfile.email === adminEmail
+})
+
+// Computed property to determine if we should show admin content
+const shouldShowAdminContent = computed(() => {
+  return !isLoadingProfile.value && isAdmin.value
 })
 
 const setTheme = newTheme => {
@@ -305,17 +312,18 @@ const confirmRemoveSessions = () => {
 onMounted(async () => {
   document.title = `${APP_NAME} - Settings`
   
-  // Fetch user profile first to ensure we have the lastName for admin check
+  // Fetch user profile first to ensure we have the email for admin check
   await fetchUserProfile()
   
-  // Only fetch session count and version if user is Hofrichter
-  if (isHofrichter.value) {
+  // Only fetch session count and version if user is admin
+  if (shouldShowAdminContent.value) {
     fetchSessionCount()
     fetchVersion()
   }
 })
 
 const fetchSessionCount = async () => {
+  isLoadingSessionCount.value = true
   try {
     // Determine proxy URL, defaulting to local Vite server if VITE_AUTH_PROXY_URL is not set
     const AUTH_PROXY_URL = import.meta.env.VITE_AUTH_PROXY_URL || 'http://127.0.0.1:3333'
@@ -341,6 +349,7 @@ const fetchSessionCount = async () => {
 }
 
 const fetchVersion = async () => {
+  isLoadingVersion.value = true
   try {
     // Determine proxy URL, defaulting to local Vite server if VITE_AUTH_PROXY_URL is not set
     const AUTH_PROXY_URL = import.meta.env.VITE_AUTH_PROXY_URL || 'http://127.0.0.1:3333'

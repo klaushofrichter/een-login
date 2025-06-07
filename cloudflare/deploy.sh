@@ -21,7 +21,7 @@ npx wrangler --name ${WORKER} secret put CLIENT_SECRET <<< ${VITE_EEN_CLIENT_SEC
 DEPLOY_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 NAME=$(cat ../package.json | grep name | head -n 1 | cut -d'"' -f4)
 VERSION=$( cat ../package.json | grep version | head -n 1 | cut -d'"' -f4)
-VERSION_INFO="${NAME} - ${VERSION} - ${DEPLOY_TIME}"
+VERSION_INFO="cloudflare - ${NAME} - ${VERSION} - ${DEPLOY_TIME}"
 echo "Storing version info: ${VERSION_INFO}"
 npx wrangler kv key put --namespace-id=bd89d6652c3941adbe1b5a0197796bb0 --remote DEPLOY_VERSION "${VERSION_INFO}"
 

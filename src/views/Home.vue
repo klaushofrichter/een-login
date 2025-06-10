@@ -75,6 +75,64 @@
                     Captured: {{ formatTimestamp(imageTimestamp) }}
                   </p>
                 </div>
+
+                <!-- Available Sensors Section -->
+                <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                  <div class="flex items-center justify-between mb-2">
+                    <h5 class="text-sm font-medium text-green-900 dark:text-green-100">Available Sensors</h5>
+                    <button
+                      @click="loadSensors"
+                      :disabled="sensorsLoading"
+                      class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+                    >
+                      {{ sensorsLoading ? 'Loading...' : 'Refresh' }}
+                    </button>
+                  </div>
+                  
+                  <!-- Sensors Loading State -->
+                  <div v-if="sensorsLoading && !sensors.length" class="text-sm text-green-700 dark:text-green-300">
+                    Loading sensors...
+                  </div>
+                  
+                  <!-- Sensors Error -->
+                  <div v-else-if="sensorsError" class="text-sm text-red-700 dark:text-red-400">
+                    {{ sensorsError }}
+                  </div>
+                  
+                  <!-- Sensors List -->
+                  <div v-else-if="sensors.length > 0" class="space-y-2">
+                    <div class="text-xs text-green-600 dark:text-green-400 mb-2">
+                      Found {{ sensors.length }} sensor device{{ sensors.length !== 1 ? 's' : '' }}
+                    </div>
+                    <div class="max-h-32 overflow-y-auto space-y-1">
+                      <div
+                        v-for="sensor in sensors"
+                        :key="sensor.id"
+                        class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-green-200 dark:border-green-700"
+                      >
+                        <div class="flex-1 min-w-0">
+                          <p class="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {{ sensor.name || 'Unnamed Sensor' }}
+                          </p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            ID: {{ sensor.id }}
+                          </p>
+                          <p v-if="sensor.status" class="text-xs text-gray-500 dark:text-gray-400">
+                            Status: {{ sensor.status }}
+                          </p>
+                        </div>
+                        <div v-if="sensor.primaryCameraId" class="text-xs text-green-600 dark:text-green-400 ml-2">
+                          📷 {{ sensor.primaryCameraId }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- No Sensors Found -->
+                  <div v-else class="text-sm text-green-700 dark:text-green-300">
+                    No sensor devices found.
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -90,6 +148,7 @@ import { useAuthStore } from '../stores/auth'
 import { APP_NAME } from '../constants'
 import { cameraService } from '../services/cameras'
 import { mediaService } from '../services/media'
+import { sensorService } from '../services/sensors'
 
 // We import auth store for potential future use but don't use it directly yet
 // eslint-disable-next-line no-unused-vars
@@ -102,6 +161,9 @@ const error = ref('')
 const cameraInfo = ref(null)
 const cameraImage = ref(null)
 const imageTimestamp = ref(null)
+const sensors = ref([])
+const sensorsLoading = ref(false)
+const sensorsError = ref('')
 
 // Load camera information and image
 const loadCamera = async () => {
@@ -137,6 +199,27 @@ const loadCamera = async () => {
   }
 }
 
+// Load sensors
+const loadSensors = async () => {
+  sensorsLoading.value = true
+  sensorsError.value = ''
+  sensors.value = []
+
+  try {
+    // Get sensor devices with status information
+    const sensorsResponse = await sensorService.listSensorDevices({
+      include: ['status'],
+      sort: ['+name']
+    })
+    sensors.value = sensorsResponse.results || []
+  } catch (err) {
+    console.error('Error loading sensors:', err)
+    sensorsError.value = err.message || 'Failed to load sensors'
+  } finally {
+    sensorsLoading.value = false
+  }
+}
+
 // Format timestamp for display
 const formatTimestamp = (timestamp) => {
   if (!timestamp) return 'Unknown'
@@ -150,5 +233,6 @@ const formatTimestamp = (timestamp) => {
 
 onMounted(() => {
   document.title = `${APP_NAME} - Home`
+  loadSensors()
 })
 </script>

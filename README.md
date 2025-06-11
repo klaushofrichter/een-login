@@ -71,8 +71,8 @@ The frontend code automatically adapts to whichever proxy is configured via the 
 
 ## Prerequisites
 
--   Node.js (v18 or higher recommended)
--   npm or yarn
+-   Node.js (v20.19 or higher recommended)
+-   npm
 -   An Eagle Eye Networks (EEN) Developer Account:
     -   Create an account at [EEN Developer Portal](https://developer.eagleeyenetworks.com/docs/getting-started#get-an-account)
     -   Create Client Credentials (OAuth API Key) in the [My Application section](https://developer.eagleeyenetworks.com/my-apps)
@@ -98,8 +98,6 @@ This setup involves configuring both the frontend Vue application and deploying 
    -   Install frontend dependencies:
        ```bash
        npm install
-       # or
-       yarn install
        ```
    -   Create a `.env` file in the **root** directory. Add the following variables:
        ```env
@@ -153,8 +151,6 @@ This setup involves configuring both the frontend Vue application and deploying 
 **5. Start the development server:**
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
    The application will typically be available at `http://127.0.0.1:3333`.
@@ -405,9 +401,9 @@ source and merge the original repository when appropriate. Please read the docum
 is a summary of the steps. This assumes that the branch to merge is `develop` in both repositories. 
 
 - create a new EMPTY repository in github for the new application (e.g. with the name `my-een-login-extended`)
-- Create a Local Bare Clone of the Original Repository with this command: 
+- In a terminal, create a Local Bare Clone of the Original een-login Repository with this command: 
 `git clone --bare https://github.com/klaushofrichter/een-login.git een-login-original.git`
-- CD into the new directory: `cd my-een-login-extended.git`
+- CD into the new directory: `cd my-een-login-original.git`
 - Push the Mirrored History to Your New Repository as mirror: 
 `git push --mirror https://github.com/YOUR_USERNAME/my-een-login-extended.git`
 - Remove the local repository that was cloned with --bare above with `cd ..` and `rm -rf een-login-original.git`
@@ -419,6 +415,7 @@ is a summary of the steps. This assumes that the branch to merge is `develop` in
   - Create the `.env` and all other configuration
   - Change the app name and version number in `package.json`
   - Change the app name also in `src/constants.js`
+  - Update the README.md
   - Add features as desired.  
 - Commit your changes in the new repository
 - In order to get any changes that happened in the original sources, perform these steps

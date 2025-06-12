@@ -3,7 +3,8 @@ set -e
 
 #
 # customize the names below. A github repository will be created
-APPNAME=YOUR_APP_NAME
+APPNAME=your-app-name                 # one word, lower case, e.g. "een-login"
+APPTITLE="Your App Title"              # used for the browser title, e.g. "EEN Login"
 USERNAME=klaushofrichter
 
 #
@@ -29,8 +30,10 @@ fi
 
 #
 # check that customization happened
-[ "${APPNAME}" == "YOUR_APP_NAME" ] && echo "$0: ERROR: need to customize the APPNAME, do not use ${APPNAME}" && exit 1
+[ "${APPNAME}" == "your-app-name" ] && echo "$0: ERROR: need to customize the APPNAME, do not use '${APPNAME}'" && exit 1
 [ -z "${APPNAME}" ] && echo "$0: ERROR: APPNAME can not be empty" && exit 1
+[ "${APPTITLE}" == "Your App Name" ] && echo "$0: ERROR: need to customize the APPTITLE, do not use '${APPTITLE}'" && exit 1
+[ -z "${APPTITLE}" ] && echo "$0: ERROR: APPTITLE can not be empty" && exit 1
 
 #
 # wait a little while
@@ -77,20 +80,30 @@ LINES=$( echo "${REMOTES}" | wc -l )
 
 #
 # change the package name
-# TODO
+sed -i '' "s/\"name\": \".*\"/\"name\": \"${APPNAME}\"/" package.json
+
+#
+# change the package base
+sed -i '' "s/\"base\": \".*\"/\"name\": \"/${APPNAME}/\"/" package.json
 
 #
 # change the package version
-# TODO
+sed -i '' "s/\"version\": \".*\"/\"version\": \"0.0.1\"/" package.json
 
 #
-# change the constants
-# TODO
+# change the constants file
+sed -i '' "s/EEN Login/\${APPTITLE}/g" src/constants.js
 
 #
 # change the README
-# TODO
+echo "## ${APPTITLE}" > README.md
+echo 'A modern VUE3 application for EEN based on [EEN Login](https://github.com/klaushofrichter/een-login)" >> README.md
 
+#
+# configure the repository 
+# TODO
+#   Rules (protect production)
+#   Settings like mandatory tests
 #
 # run npm install
 npm install

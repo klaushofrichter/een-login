@@ -7,6 +7,9 @@ This document provides comprehensive documentation for the EEN (Eagle Eye Networ
 - [Sensor Service](#sensor-service)
 - [Media Service](#media-service)
 - [User Service](#user-service)
+- [Measurements Service](#measurements-service)
+- [Sensor Gateways Service](#sensor-gateways-service)
+- [Sensor Summary Service](#sensor-summary-service)
 
 ## Camera Service
 
@@ -239,4 +242,150 @@ All API requests:
 3. Include proper content types in requests
 4. Handle pagination for list endpoints
 5. Use query parameters for filtering and sorting
-6. Implement proper caching strategies for media content 
+6. Implement proper caching strategies for media content
+
+## Measurements Service
+
+The Measurements Service provides functionality to interact with EEN Measurements APIs for managing sensor measurements and their data.
+
+### Methods
+
+#### `getMeasurementById(measurementId, include = [])`
+Retrieves measurement details by ID.
+
+**Parameters:**
+- `measurementId` (string): The ID of the measurement to fetch
+- `include` (Array<string>, optional): Fields to include (measurementProperties, lastSample, measurementThreshold, locationSummary, sensorSummary)
+
+**Returns:** Promise<Object> - Measurement details
+
+#### `listMeasurements(options = {})`
+Retrieves a paginated list of measurements.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `parentId__in` (Array<string>): List of Parent IDs to filter on
+  - `locationId__in` (Array<string>): List of Location IDs to filter on
+  - `cameraId__in` (Array<string>): List of Camera IDs to filter on
+  - `id__in` (Array<string>): List of Measurement IDs to filter on
+  - `preferred` (boolean): Filter by preferred measurements
+  - `propertyType` (string): Filter by property type
+  - `thresholdLevel` (string): Filter by threshold level
+  - `q` (string): Text search query
+  - `qRelevance__gte` (number): Minimum similarity threshold for text search (0-1)
+  - `include` (Array<string>): Fields to include in response
+  - `sort` (Array<string>): Sorting options (e.g., ['+name', '-qRelevance', '+propertyType'])
+  - `pageToken` (string): Page token for pagination
+  - `pageSize` (number): Number of results per page
+
+**Returns:** Promise<Object> - Paginated list of measurements
+
+#### `updateMeasurement(measurementId, updateData)`
+Updates an existing measurement.
+
+**Parameters:**
+- `measurementId` (string): The ID of the measurement to update
+- `updateData` (Object):
+  - `name` (string, optional): New name
+  - `notes` (string, optional): New notes
+  - `preferred` (boolean, optional): New preferred status
+  - `primaryCameraId` (string, optional): New primary camera ID
+  - `measurementProperties` (Object, optional): New measurement properties
+
+**Returns:** Promise<void>
+
+#### `listMeasurementsFieldValues(options = {})`
+Retrieves available field values for measurements (useful for filtering).
+
+**Parameters:**
+- `options` (Object, optional):
+  - `include` (Array<string>): Fields to include in response (location)
+  - `preferred` (boolean): Filter by preferred measurements
+
+**Returns:** Promise<Object> - Available field values
+
+#### `postSensorThresholdEvent(eventData)`
+Posts a sensor threshold event (internal endpoint).
+
+**Parameters:**
+- `eventData` (Object): Sensor threshold event data
+
+**Returns:** Promise<void>
+
+## Sensor Gateways Service
+
+The Sensor Gateways Service provides functionality to interact with EEN Sensor Gateway APIs for managing sensor gateway devices.
+
+### Methods
+
+#### `listSensorGateways(options = {})`
+Retrieves a paginated list of sensor gateways.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `locationId__in` (Array<string>): List of Location IDs to filter on
+  - `id__in` (Array<string>): List of Sensor Gateway IDs to filter on
+  - `q` (string): Text search query
+  - `qRelevance__gte` (number): Minimum similarity threshold (0-1)
+  - `include` (Array<string>): Fields to include in response
+  - `sort` (Array<string>): Sort fields
+  - `pageToken` (string): Pagination token
+  - `pageSize` (number): Number of items per page
+
+**Returns:** Promise<Object> - Paginated response with sensor gateways
+
+#### `getSensorGateway(sensorGatewayId, include = [])`
+Retrieves a specific sensor gateway by ID.
+
+**Parameters:**
+- `sensorGatewayId` (string): The ID of the sensor gateway
+- `include` (Array<string>, optional): Fields to include in response
+
+**Returns:** Promise<Object> - Sensor gateway details
+
+#### `createSensorGateway(data)`
+Creates a new sensor gateway.
+
+**Parameters:**
+- `data` (Object):
+  - `name` (string): Name of the sensor gateway
+  - `connectId` (string): Connect ID for the sensor gateway
+  - `locationId` (string, optional): Optional location ID
+
+**Returns:** Promise<Object> - Created sensor gateway
+
+#### `updateSensorGateway(sensorGatewayId, data)`
+Updates an existing sensor gateway.
+
+**Parameters:**
+- `sensorGatewayId` (string): The ID of the sensor gateway to update
+- `data` (Object):
+  - `name` (string, optional): New name
+  - `notes` (string, optional): New notes
+  - `locationId` (string, optional): New location ID
+  - `timeZone` (Object, optional): New timezone settings
+
+**Returns:** Promise<void>
+
+#### `deleteSensorGateway(sensorGatewayId)`
+Deletes a sensor gateway.
+
+**Parameters:**
+- `sensorGatewayId` (string): The ID of the sensor gateway to delete
+
+**Returns:** Promise<void>
+
+## Sensor Summary Service
+
+The Sensor Summary Service provides functionality to retrieve sensor summaries with aggregated data.
+
+### Methods
+
+#### `listSensorSummary(options = {})`
+Retrieves sensor summaries visible to the current user.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `preferred` (boolean): If true, only preferred measurements are returned. If false, only non-preferred. If omitted, all are returned.
+
+**Returns:** Promise<Object> - Paginated response with sensor summaries 

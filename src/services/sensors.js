@@ -37,6 +37,7 @@ class SensorService {
       }
       
       // Validate URL scheme
+      //console.log('requestUrl', requestUrl)
       if (!securityService.validateUrlScheme(requestUrl)) {
         throw new Error('Invalid request URL scheme')
       }
@@ -57,6 +58,7 @@ class SensorService {
       }
 
       const data = await response.json()
+      //console.log('data', data)
       return data
     } catch (error) {
       console.error('[SensorService] Error fetching sensor device:', error)

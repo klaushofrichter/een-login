@@ -14,6 +14,8 @@ The application uses the EEN APIs, but is otherwise not supported
 by Eagle Eye Networks. Visit the [Eagle Eye Networks Developer Portal](https://developer.eagleeyenetworks.com/)
 for more information about the Eagle Eye Networks APIs. 
 
+For detailed API documentation of the services used in this application, please refer to [EEN_API_DOCUMENTATION.md](./EEN_API_DOCUMENTATION.md).
+
 
 ![GH Pages Deployment](https://github.com/klaushofrichter/een-login/actions/workflows/deploy.yml/badge.svg?event=push&label=GH%20Pages) 
 ![CodeQL Check](https://github.com/klaushofrichter/een-login/actions/workflows/codeql.yml/badge.svg?label=CodeQL) 
@@ -248,9 +250,22 @@ een-login/
     -   Manages the user's authentication state within the browser (access token, user profile).
     -   Provides actions to initiate login, complete login (storing the token received from the worker), logout, and trigger token refresh via the worker.
 -   **`services/auth.js` (Frontend):**
-    -   Constructs the initial EEN OAuth URL.
-    -   Sends the authorization `code` to the `/api/auth/callback` endpoint of the deployed Cloudflare Worker.
-    -   Calls the `/api/auth/refresh` endpoint of the worker when a token refresh is needed.
+    -   Handles communication with the authentication proxy (either local Vite proxy or Cloudflare Worker).
+    -   Manages the OAuth flow and token refresh process.
+-   **`services/user.js` (Frontend):**
+    -   Provides user profile information and system details.
+    -   Implements admin-only features for session management and version information.
+-   **`services/cameras.js` (Frontend):**
+    -   Manages camera-related operations.
+    -   Provides functionality for listing, adding, updating, and deleting cameras.
+-   **`services/sensors.js` (Frontend):**
+    -   Handles sensor device operations.
+    -   Provides functionality for managing sensor devices and their data.
+-   **`services/media.js` (Frontend):**
+    -   Manages media operations for cameras.
+    -   Provides functionality for retrieving live and recorded images.
+
+For detailed API documentation of these services, please refer to [EEN_API_DOCUMENTATION.md](./EEN_API_DOCUMENTATION.md).
 
 ## Authentication Flow (with Included Cloudflare Worker Proxy)
 

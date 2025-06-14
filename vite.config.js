@@ -452,6 +452,10 @@ export default defineConfig(({ command, mode }) => {
             dest: '.'
           },
           {
+            src: 'EEN_API_DOCUMENTATION.md',
+            dest: '.'
+          },
+          {
             src: 'repository-management.pdf',
             dest: '.'
           }

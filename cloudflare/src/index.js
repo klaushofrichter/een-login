@@ -14,9 +14,28 @@ export default {
     //console.log('[Cloudflare Plugin] Request Origin Header:', origin); // DEBUG
     //console.log('[Cloudflare Plugin] Request URL:', request.url); // DEBUG
 
+    // Define allowed origins for security
+    const allowedOrigins = [
+      // 'http://127.0.0.1:3333',           // enable this when using local development with remote proxy. 
+                                            // the vite proxy server can be used for local development.
+      'https://klaushofrichter.github.io'
+    ]
+
+    // Validate origin - only allow requests from permitted domains
+    const isValidOrigin = origin && allowedOrigins.includes(origin)
+
+    if (!isValidOrigin) {
+      return new Response('Forbidden: Invalid origin', { 
+        status: 403,
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      })
+    }
+
     // Define CORS headers for use across all endpoints
     const corsHeaders = {
-      'Access-Control-Allow-Origin': origin || '*',
+      'Access-Control-Allow-Origin': origin,
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie', // Add Cookie to allowed headers
       'Access-Control-Allow-Credentials': 'true', // If you need to send/receive cookies or auth headers
@@ -25,16 +44,11 @@ export default {
 
     // Handle CORS preflight request
     if (request.method === 'OPTIONS') {
-      if (origin) {
-        // console.log('[Cloudflare Plugin] OPTIONS Preflight CORS Headers:', JSON.stringify(corsHeaders)); // Removed
-        return new Response(null, {
-          status: 204, // No Content
-          headers: corsHeaders
-        })
-      } else {
-        // console.log('[Cloudflare Plugin] OPTIONS Preflight: No Origin header found.'); // Removed
-        return new Response(null, { status: 403 }) // Forbidden if no origin
-      }
+      // console.log('[Cloudflare Plugin] OPTIONS Preflight CORS Headers:', JSON.stringify(corsHeaders)); // Removed
+      return new Response(null, {
+        status: 204, // No Content
+        headers: corsHeaders
+      })
     }
 
     // handle the actual request

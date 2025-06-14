@@ -80,19 +80,23 @@ LINES=$( echo "${REMOTES}" | wc -l )
 
 #
 # change the package name
-sed -i '' "s/\"name\": \".*\"/\"name\": \"${APPNAME}\"/" package.json
+sed -i '' "s/\"name\": \".*\"/\"name\": \"${APPNAME}\"/" ./package.json
 
 #
 # change the package base
-sed -i '' "s/\"base\": \".*\"/\"name\": \"/${APPNAME}/\"/" package.json
+sed -i '' "s/\"base\": \".*\"/\"name\": \"/${APPNAME}/\"/" ./package.json
 
 #
 # change the package version
-sed -i '' "s/\"version\": \".*\"/\"version\": \"0.0.1\"/" package.json
+sed -i '' "s/\"version\": \".*\"/\"version\": \"0.0.1\"/" ./package.json
 
 #
 # change the constants file
-sed -i '' "s/EEN Login/\${APPTITLE}/g" src/constants.js
+sed -i '' "s/EEN Login/\${APPTITLE}/g" ./src/constants.js
+
+#
+# change the 404 file
+sed -i '' "s/een-login/${APPNAME}/" ./public/404.html
 
 #
 # change the README

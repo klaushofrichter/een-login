@@ -8,6 +8,7 @@ and practial examples [here](https://github.com/klaushofrichter/een-playgroundim
 - [Sensor Service](#sensor-service)
 - [Media Service](#media-service)
 - [Media Session Service](#media-session-service)
+- [Feeds Service](#feeds-service)
 - [User Service](#user-service)
 - [Measurements Service](#measurements-service)
 - [Sensor Gateways Service](#sensor-gateways-service)
@@ -395,6 +396,242 @@ const mediaList = await mediaService.listMedia({
 
 // Access the media URL (session cookie will be included automatically)
 const videoUrl = mediaList.results[0].flvUrl;
+```
+
+## Feeds Service
+
+The Feeds Service provides functionality to interact with EEN Feeds APIs for retrieving live streaming URLs and feed information for devices.
+
+### Methods
+
+#### `listFeeds(options = {})`
+Lists feeds for devices with comprehensive filtering options.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `deviceId` (string, optional): The device generating the feed
+  - `deviceId__in` (Array<string>, optional): Array of device IDs to filter feeds
+  - `type` (string, optional): Stream type ('main', 'preview', 'talkdown')
+  - `include` (Array<string>, optional): Fields to include in response
+  - `pageToken` (string, optional): Page token for pagination
+  - `pageSize` (number, optional): Number of results per page
+
+**Include Options:**
+- `'flvUrl'` - Flash video URL for HTTPS streaming
+- `'rtspUrl'` - RTSP protocol URL for media streaming
+- `'rtspsUrl'` - RTSP over TLS (secure) URL
+- `'localRtspUrl'` - Direct bridge RTSP URL
+- `'hlsUrl'` - HTTP Live Streaming URL
+- `'multipartUrl'` - Multipart HTTPS streaming URL (auto-refreshing)
+- `'webRtcUrl'` - WebRTC URL for real-time communication
+- `'audioPushHttpsUrl'` - Audio push URL for speakers
+
+**Returns:** Promise<Object> - Paginated list of feeds
+
+**Example:**
+```javascript
+// Get all feeds for a device with streaming URLs
+const feeds = await feedsService.listFeeds({
+  deviceId: 'camera123',
+  include: ['multipartUrl', 'flvUrl', 'hlsUrl']
+});
+
+// Filter by stream type
+const previewFeeds = await feedsService.listFeeds({
+  deviceId: 'camera123',
+  type: 'preview',
+  include: ['multipartUrl']
+});
+
+// Get feeds for multiple devices
+const multiDeviceFeeds = await feedsService.listFeeds({
+  deviceId__in: ['camera123', 'camera456'],
+  include: ['multipartUrl', 'flvUrl']
+});
+```
+
+#### `getFeedsForDevice(deviceId, options = {})`
+Convenient method to get feeds for a specific device with optional filtering.
+
+**Parameters:**
+- `deviceId` (string): The device ID to get feeds for (required)
+- `options` (Object, optional):
+  - `type` (string, optional): Filter by stream type
+  - `include` (Array<string>, optional): Fields to include in response
+
+**Returns:** Promise<Object> - Feeds response for the device
+
+**Example:**
+```javascript
+// Get all feeds for a device
+const deviceFeeds = await feedsService.getFeedsForDevice('camera123', {
+  include: ['multipartUrl', 'flvUrl']
+});
+
+// Get only preview feeds
+const previewFeeds = await feedsService.getFeedsForDevice('camera123', {
+  type: 'preview',
+  include: ['multipartUrl']
+});
+```
+
+#### `getMultipartUrl(deviceId, type = 'preview')`
+Gets the multipart URL for live streaming from a specific device and stream type.
+
+**Parameters:**
+- `deviceId` (string): The device ID (required)
+- `type` (string, optional): Stream type ('main', 'preview', 'talkdown', default: 'preview')
+
+**Returns:** Promise<string|null> - The multipart URL or null if not found
+
+**Example:**
+```javascript
+// Get preview multipart URL (most common for live viewing)
+const previewUrl = await feedsService.getMultipartUrl('camera123', 'preview');
+if (previewUrl) {
+  // Use URL in img tag for auto-refreshing live stream
+  document.getElementById('liveStream').src = previewUrl;
+}
+
+// Get high-quality main stream URL
+const mainUrl = await feedsService.getMultipartUrl('camera123', 'main');
+```
+
+#### `getAllUrls(deviceId, type = 'preview')`
+Gets all available streaming URLs for a specific device and stream type.
+
+**Parameters:**
+- `deviceId` (string): The device ID (required)
+- `type` (string, optional): Stream type ('main', 'preview', 'talkdown', default: 'preview')
+
+**Returns:** Promise<Object|null> - Object with all available URLs or null if not found
+
+**Response Object Properties:**
+- `flvUrl` (string|null): Flash video URL
+- `rtspUrl` (string|null): RTSP URL
+- `rtspsUrl` (string|null): Secure RTSP URL
+- `localRtspUrl` (string|null): Local bridge RTSP URL
+- `hlsUrl` (string|null): HLS streaming URL
+- `multipartUrl` (string|null): Multipart streaming URL
+- `webRtcUrl` (string|null): WebRTC URL
+- `audioPushHttpsUrl` (string|null): Audio push URL
+
+**Example:**
+```javascript
+// Get all available streaming URLs
+const urls = await feedsService.getAllUrls('camera123', 'preview');
+
+if (urls) {
+  console.log('Available streaming options:');
+  if (urls.multipartUrl) console.log('Multipart:', urls.multipartUrl);
+  if (urls.flvUrl) console.log('FLV:', urls.flvUrl);
+  if (urls.hlsUrl) console.log('HLS:', urls.hlsUrl);
+  if (urls.rtspUrl) console.log('RTSP:', urls.rtspUrl);
+  if (urls.webRtcUrl) console.log('WebRTC:', urls.webRtcUrl);
+}
+
+// Use the best available URL for your use case
+const streamUrl = urls.multipartUrl || urls.flvUrl || urls.hlsUrl;
+```
+
+### Stream Types
+
+The feeds service supports three main stream types:
+
+1. **`preview`** - Low resolution, low framerate stream optimized for live monitoring
+2. **`main`** - High resolution, high framerate stream for detailed viewing
+3. **`talkdown`** - Audio stream for two-way communication with speakers
+
+### URL Types and Use Cases
+
+#### **`multipartUrl`** (Recommended for Live Viewing)
+- **Use Case**: Auto-refreshing live images in web browsers
+- **Format**: Multipart HTTPS stream
+- **Benefits**: Automatic updates, works directly in `<img>` tags
+- **Example**: Perfect for dashboard live camera previews
+
+#### **`flvUrl`**
+- **Use Case**: Video streaming in Flash-compatible players
+- **Format**: Flash Video over HTTPS
+- **Benefits**: Supports both live and recorded playback
+- **Example**: Legacy video player integration
+
+#### **`hlsUrl`**
+- **Use Case**: Mobile and modern web video streaming
+- **Format**: HTTP Live Streaming (HLS)
+- **Benefits**: Adaptive bitrate, mobile-friendly
+- **Example**: iOS/Android apps, modern video players
+
+#### **`rtspUrl` / `rtspsUrl`**
+- **Use Case**: Professional video management systems
+- **Format**: Real-Time Streaming Protocol
+- **Benefits**: Low latency, industry standard
+- **Example**: VMS integration, security systems
+
+#### **`webRtcUrl`**
+- **Use Case**: Real-time two-way communication
+- **Format**: WebRTC peer-to-peer
+- **Benefits**: Ultra-low latency, bidirectional
+- **Example**: Intercom systems, live monitoring
+
+### Complete Workflow Examples
+
+#### **Basic Live Stream Setup**
+```javascript
+// 1. Initialize media session for authentication
+await mediaSessionService.initializeMediaSession();
+
+// 2. Get multipart URL for live streaming
+const liveUrl = await feedsService.getMultipartUrl('camera123', 'preview');
+
+// 3. Display in HTML
+if (liveUrl) {
+  document.getElementById('liveCamera').src = liveUrl;
+}
+```
+
+#### **Multi-Camera Dashboard**
+```javascript
+const cameraIds = ['cam001', 'cam002', 'cam003'];
+
+// Initialize media session once
+await mediaSessionService.initializeMediaSession();
+
+// Get feeds for all cameras
+const allUrls = await Promise.all(
+  cameraIds.map(id => feedsService.getMultipartUrl(id, 'preview'))
+);
+
+// Display all live streams
+allUrls.forEach((url, index) => {
+  if (url) {
+    document.getElementById(`camera-${index}`).src = url;
+  }
+});
+```
+
+#### **Stream Quality Selection**
+```javascript
+// Get all available URLs for quality selection
+const urls = await feedsService.getAllUrls('camera123');
+
+// Let user choose quality
+const qualitySelect = document.getElementById('quality');
+if (urls.multipartUrl) {
+  qualitySelect.innerHTML += '<option value="preview">Preview Quality</option>';
+}
+
+// Get main stream for high quality
+const mainUrls = await feedsService.getAllUrls('camera123', 'main');
+if (mainUrls.multipartUrl) {
+  qualitySelect.innerHTML += '<option value="main">High Quality</option>';
+}
+
+// Switch quality based on selection
+qualitySelect.addEventListener('change', async (e) => {
+  const streamUrl = await feedsService.getMultipartUrl('camera123', e.target.value);
+  document.getElementById('videoPlayer').src = streamUrl;
+});
 ```
 
 ## User Service

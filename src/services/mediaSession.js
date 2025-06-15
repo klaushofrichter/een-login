@@ -85,7 +85,7 @@ class MediaSessionService {
         throw new Error(`Failed to initialize media session cookie: ${cookieResponse.status} ${cookieResponse.statusText}`)
       }
 
-      console.log('[MediaSessionService] Media session cookie initialized successfully')
+      //console.log('[MediaSessionService] Media session cookie initialized successfully')
       return true
     } catch (error) {
       console.error('[MediaSessionService] Error initializing media session:', error)

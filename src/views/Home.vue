@@ -16,6 +16,79 @@
               <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Camera Viewer</h4>
                 
+                <!-- Available Cameras Section -->
+                <div class="mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                  <div class="flex items-center justify-between mb-2">
+                    <h5 class="text-sm font-medium text-blue-900 dark:text-blue-100">Your Cameras</h5>
+                    <button
+                      @click="loadCameras"
+                      :disabled="camerasLoading"
+                      class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    >
+                      {{ camerasLoading ? 'Loading...' : 'Refresh' }}
+                    </button>
+                  </div>
+                  
+                  <!-- Cameras Loading State -->
+                  <div v-if="camerasLoading && !cameras.length" class="text-sm text-blue-700 dark:text-blue-300">
+                    Loading cameras...
+                  </div>
+                  
+                  <!-- Cameras Error -->
+                  <div v-else-if="camerasError" class="text-sm text-red-700 dark:text-red-400">
+                    {{ camerasError }}
+                  </div>
+                  
+                  <!-- Cameras List -->
+                  <div v-else-if="cameras.length > 0" class="space-y-2">
+                    <div class="text-xs text-blue-600 dark:text-blue-400 mb-2">
+                      Showing {{ cameras.length }} camera{{ cameras.length !== 1 ? 's' : '' }}
+                    </div>
+                    <div class="space-y-1">
+                                             <div
+                         v-for="camera in cameras"
+                         :key="camera.id"
+                         class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-blue-200 dark:border-blue-700 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                         @click="selectCamera(camera.id)"
+                       >
+                         <div class="flex-1 min-w-0">
+                           <p class="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                             {{ camera.name || 'Unnamed Camera' }}
+                           </p>
+                           <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                             ID: {{ camera.id }}
+                           </p>
+                         </div>
+                         <div v-if="camera.status" class="flex items-center ml-2">
+                           <div 
+                             :class="[
+                               'w-2 h-2 rounded-full mr-1',
+                               camera.status?.connectionStatus === 'online' 
+                                 ? 'bg-green-500' 
+                                 : 'bg-red-500'
+                             ]"
+                           ></div>
+                           <span 
+                             :class="[
+                               'text-xs font-medium',
+                               camera.status?.connectionStatus === 'online' 
+                                 ? 'text-green-600 dark:text-green-400' 
+                                 : 'text-red-600 dark:text-red-400'
+                             ]"
+                           >
+                             {{ camera.status?.connectionStatus === 'online' ? 'Online' : 'Offline' }}
+                           </span>
+                         </div>
+                       </div>
+                    </div>
+                  </div>
+                  
+                  <!-- No Cameras Found -->
+                  <div v-else class="text-sm text-blue-700 dark:text-blue-300">
+                    No cameras found.
+                  </div>
+                </div>
+                
                 <!-- Camera ID Input Section -->
                 <div class="flex space-x-2 mb-4">
                   <div class="flex-1">
@@ -61,18 +134,18 @@
                 </div>
 
                 <!-- Camera Image -->
-                <div v-if="cameraImage" class="text-center">
-                  <h5 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Live Image</h5>
+                <div v-if="multipartUrl" class="text-center">
+                  <h5 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Live Stream</h5>
                   <div class="inline-block border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                     <img
-                      :src="cameraImage"
-                      :alt="cameraInfo?.name || 'Camera Image'"
+                      :src="multipartUrl"
+                      :alt="cameraInfo?.name || 'Camera Stream'"
                       class="max-w-full h-auto"
                       style="max-height: 400px;"
                     />
                   </div>
-                  <p v-if="imageTimestamp" class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    Captured: {{ formatTimestamp(imageTimestamp) }}
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Status: {{ streamStatus }}
                   </p>
                 </div>
 
@@ -117,12 +190,29 @@
                           <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                             ID: {{ sensor.id }}
                           </p>
-                          <p v-if="sensor.status" class="text-xs text-gray-500 dark:text-gray-400">
-                            Status: {{ sensor.status }}
+                          <p v-if="sensor.primaryCameraId" class="text-xs text-green-600 dark:text-green-400 mt-1">
+                            📷 {{ sensor.primaryCameraId }}
                           </p>
                         </div>
-                        <div v-if="sensor.primaryCameraId" class="text-xs text-green-600 dark:text-green-400 ml-2">
-                          📷 {{ sensor.primaryCameraId }}
+                        <div v-if="sensor.status" class="flex items-center ml-2">
+                          <div 
+                            :class="[
+                              'w-2 h-2 rounded-full mr-1',
+                              sensor.status?.connectionStatus === 'online' 
+                                ? 'bg-green-500' 
+                                : 'bg-red-500'
+                            ]"
+                          ></div>
+                          <span 
+                            :class="[
+                              'text-xs font-medium',
+                              sensor.status?.connectionStatus === 'online' 
+                                ? 'text-green-600 dark:text-green-400' 
+                                : 'text-red-600 dark:text-red-400'
+                            ]"
+                          >
+                            {{ sensor.status?.connectionStatus === 'online' ? 'Online' : 'Offline' }}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -148,6 +238,8 @@ import { useAuthStore } from '../stores/auth'
 import { APP_NAME } from '../constants'
 import { cameraService } from '../services/cameras'
 import { mediaService } from '../services/media'
+import { mediaSessionService } from '../services/mediaSession'
+import { feedsService } from '../services/feeds'
 import { sensorService } from '../services/sensors'
 
 // We import auth store for potential future use but don't use it directly yet
@@ -159,13 +251,16 @@ const cameraId = ref('1005963a')
 const loading = ref(false)
 const error = ref('')
 const cameraInfo = ref(null)
-const cameraImage = ref(null)
-const imageTimestamp = ref(null)
+const multipartUrl = ref(null)
+const streamStatus = ref('Stopped')
 const sensors = ref([])
 const sensorsLoading = ref(false)
 const sensorsError = ref('')
+const cameras = ref([])
+const camerasLoading = ref(false)
+const camerasError = ref('')
 
-// Load camera information and image
+// Load camera information and get multipart URL
 const loadCamera = async () => {
   if (!cameraId.value.trim()) {
     error.value = 'Please enter a camera ID'
@@ -175,28 +270,63 @@ const loadCamera = async () => {
   loading.value = true
   error.value = ''
   cameraInfo.value = null
-  cameraImage.value = null
-  imageTimestamp.value = null
+  multipartUrl.value = null
+  streamStatus.value = 'Loading...'
 
   try {
     // Get camera information
     const camera = await cameraService.getCameraById(cameraId.value.trim())
     cameraInfo.value = camera
 
-    // Get live image
-    const imageResult = await mediaService.getLiveImage(cameraId.value.trim())
-    if (imageResult.image) {
-      cameraImage.value = imageResult.image
-      imageTimestamp.value = imageResult.timestamp
+    // Step 1: Initialize the media session cookie
+    await mediaSessionService.initializeMediaSession()
+    
+    // Step 2: Get the multipart URL using the feeds service
+    const feedMultipartUrl = await feedsService.getMultipartUrl(cameraId.value.trim(), 'preview')
+    
+    if (feedMultipartUrl) {
+      multipartUrl.value = feedMultipartUrl
+      //console.log('Using multipart URL:', feedMultipartUrl)
+      streamStatus.value = 'Live'
     } else {
-      error.value = 'Failed to load camera image'
+      error.value = 'No preview multipart URL found for this camera'
+      streamStatus.value = 'Error'
     }
   } catch (err) {
     console.error('Error loading camera:', err)
     error.value = err.message || 'Failed to load camera information'
+    streamStatus.value = 'Error'
   } finally {
     loading.value = false
   }
+}
+
+// Load cameras
+const loadCameras = async () => {
+  camerasLoading.value = true
+  camerasError.value = ''
+  cameras.value = []
+
+  try {
+    // Get up to 5 cameras with basic information
+    const camerasResponse = await cameraService.listCameras({
+      include: ['status'],
+      sort: ['+name'],
+      pageSize: 5
+    })
+    cameras.value = camerasResponse.results || []
+  } catch (err) {
+    console.error('Error loading cameras:', err)
+    camerasError.value = err.message || 'Failed to load cameras'
+  } finally {
+    camerasLoading.value = false
+  }
+}
+
+// Select a camera from the list
+const selectCamera = (selectedCameraId) => {
+  cameraId.value = selectedCameraId
+  loadCamera()
 }
 
 // Load sensors
@@ -233,6 +363,7 @@ const formatTimestamp = (timestamp) => {
 
 onMounted(() => {
   document.title = `${APP_NAME} - Home`
+  loadCameras()
   loadSensors()
 })
 </script>

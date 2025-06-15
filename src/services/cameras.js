@@ -155,7 +155,7 @@ class CameraService {
       const requestUrl = `${authStore.baseUrl}/api/v3.0/cameras${queryParams.toString() ? '?' + queryParams.toString() : ''}`
       
       // Debug: Log the request URL
-      console.log('[CameraService] Request URL:', requestUrl)
+      //console.log('[CameraService] Request URL:', requestUrl)
       
       // Validate URL scheme
       if (!securityService.validateUrlScheme(requestUrl)) {

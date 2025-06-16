@@ -1,6 +1,12 @@
-# EEN API Documentation
+# Node API for the EEN API Endpoints - Documentation
 
-This document provides comprehensive documentation for the EEN (Eagle Eye Networks) API services used in the application. Pleas note that there is a version of this EEN Login application that shows more details 
+This document provides comprehensive documentation for the EEN (Eagle Eye Networks) API services used in this application. Please vist the 
+[Eagle Eye Networks Developer Portal](https://developer.eagleeyenetworks.com/docs/getting-started)
+for more 
+details and official information from the original source. The documentation here was created 
+independently and is not maintained or endorsed by Eagle Eye Networks. 
+
+Please note that there is a version of this EEN Login application that shows more details 
 and practial examples [here](https://github.com/klaushofrichter/een-playgroundimage.png).
 
 ## Table of Contents
@@ -204,7 +210,7 @@ Lists media intervals for a device with various filtering options.
 **Example:**
 ```javascript
 const mediaList = await mediaService.listMedia({
-  deviceId: 'camera123',
+  deviceId: '1005963a',
   type: 'preview',
   mediaType: 'video',
   startTimestamp__gte: '2023-01-01T00:00:00Z',
@@ -227,10 +233,12 @@ Retrieves a live image from a camera.
 
 **Example:**
 ```javascript
-const liveImage = await mediaService.getLiveImage('camera123');
+const liveImage = await mediaService.getLiveImage('1005963a');
 if (liveImage.image) {
   // Use the base64 image directly in an img tag
   document.getElementById('livePreview').src = liveImage.image;
+} else {
+  console.error('No live image available for this camera');
 }
 ```
 
@@ -261,7 +269,7 @@ Retrieves a recorded image from a camera with advanced filtering and navigation 
 ```javascript
 // Get image at specific timestamp
 const recordedImage = await mediaService.getRecordedImage({
-  deviceId: 'camera123',
+  deviceId: '1005963a',
   timestamp__gte: '2023-01-01T12:00:00Z',
   type: 'main'
 });
@@ -271,6 +279,8 @@ if (recordedImage.nextToken) {
   const nextImage = await mediaService.getRecordedImage({
     pageToken: recordedImage.nextToken
   });
+} else {
+  console.log('No more images available');
 }
 ```
 
@@ -285,7 +295,7 @@ Gets available field values for recorded images, useful for discovering availabl
 
 **Example:**
 ```javascript
-const fieldValues = await mediaService.listRecordedImageFieldValues('camera123', ['overlayId']);
+const fieldValues = await mediaService.listRecordedImageFieldValues('1005963a', ['overlayId']);
 console.log('Available overlays:', fieldValues.overlayId);
 ```
 
@@ -387,7 +397,7 @@ await mediaSessionService.initializeMediaSession();
 
 // Get media intervals
 const mediaList = await mediaService.listMedia({
-  deviceId: 'camera123',
+  deviceId: '1005963a',
   type: 'preview',
   mediaType: 'video',
   startTimestamp__gte: '2023-01-01T00:00:00Z',
@@ -432,20 +442,20 @@ Lists feeds for devices with comprehensive filtering options.
 ```javascript
 // Get all feeds for a device with streaming URLs
 const feeds = await feedsService.listFeeds({
-  deviceId: 'camera123',
+  deviceId: '1005963a',
   include: ['multipartUrl', 'flvUrl', 'hlsUrl']
 });
 
 // Filter by stream type
 const previewFeeds = await feedsService.listFeeds({
-  deviceId: 'camera123',
+  deviceId: '1005963a',
   type: 'preview',
   include: ['multipartUrl']
 });
 
 // Get feeds for multiple devices
 const multiDeviceFeeds = await feedsService.listFeeds({
-  deviceId__in: ['camera123', 'camera456'],
+  deviceId__in: ['1005963a', '1005963b'],
   include: ['multipartUrl', 'flvUrl']
 });
 ```
@@ -464,12 +474,12 @@ Convenient method to get feeds for a specific device with optional filtering.
 **Example:**
 ```javascript
 // Get all feeds for a device
-const deviceFeeds = await feedsService.getFeedsForDevice('camera123', {
+const deviceFeeds = await feedsService.getFeedsForDevice('1005963a', {
   include: ['multipartUrl', 'flvUrl']
 });
 
 // Get only preview feeds
-const previewFeeds = await feedsService.getFeedsForDevice('camera123', {
+const previewFeeds = await feedsService.getFeedsForDevice('1005963a', {
   type: 'preview',
   include: ['multipartUrl']
 });
@@ -487,14 +497,16 @@ Gets the multipart URL for live streaming from a specific device and stream type
 **Example:**
 ```javascript
 // Get preview multipart URL (most common for live viewing)
-const previewUrl = await feedsService.getMultipartUrl('camera123', 'preview');
+const previewUrl = await feedsService.getMultipartUrl('1005963a', 'preview');
 if (previewUrl) {
   // Use URL in img tag for auto-refreshing live stream
   document.getElementById('liveStream').src = previewUrl;
+} else {
+  console.error('No preview multipart URL found for this camera');
 }
 
 // Get high-quality main stream URL
-const mainUrl = await feedsService.getMultipartUrl('camera123', 'main');
+const mainUrl = await feedsService.getMultipartUrl('1005963a', 'main');
 ```
 
 #### `getAllUrls(deviceId, type = 'preview')`
@@ -519,7 +531,7 @@ Gets all available streaming URLs for a specific device and stream type.
 **Example:**
 ```javascript
 // Get all available streaming URLs
-const urls = await feedsService.getAllUrls('camera123', 'preview');
+const urls = await feedsService.getAllUrls('1005963a', 'preview');
 
 if (urls) {
   console.log('Available streaming options:');
@@ -528,10 +540,12 @@ if (urls) {
   if (urls.hlsUrl) console.log('HLS:', urls.hlsUrl);
   if (urls.rtspUrl) console.log('RTSP:', urls.rtspUrl);
   if (urls.webRtcUrl) console.log('WebRTC:', urls.webRtcUrl);
+} else {
+  console.error('No feeds found for this camera');
 }
 
 // Use the best available URL for your use case
-const streamUrl = urls.multipartUrl || urls.flvUrl || urls.hlsUrl;
+const streamUrl = urls?.multipartUrl || urls?.flvUrl || urls?.hlsUrl;
 ```
 
 ### Stream Types
@@ -582,17 +596,19 @@ The feeds service supports three main stream types:
 await mediaSessionService.initializeMediaSession();
 
 // 2. Get multipart URL for live streaming
-const liveUrl = await feedsService.getMultipartUrl('camera123', 'preview');
+const liveUrl = await feedsService.getMultipartUrl('1005963a', 'preview');
 
 // 3. Display in HTML
 if (liveUrl) {
   document.getElementById('liveCamera').src = liveUrl;
+} else {
+  console.error('No preview multipart URL found for this camera');
 }
 ```
 
 #### **Multi-Camera Dashboard**
 ```javascript
-const cameraIds = ['cam001', 'cam002', 'cam003'];
+const cameraIds = ['1005963a', '1005963b', '1005963c'];
 
 // Initialize media session once
 await mediaSessionService.initializeMediaSession();
@@ -606,6 +622,8 @@ const allUrls = await Promise.all(
 allUrls.forEach((url, index) => {
   if (url) {
     document.getElementById(`camera-${index}`).src = url;
+  } else {
+    console.error(`No multipart URL found for camera ${cameraIds[index]}`);
   }
 });
 ```
@@ -613,25 +631,97 @@ allUrls.forEach((url, index) => {
 #### **Stream Quality Selection**
 ```javascript
 // Get all available URLs for quality selection
-const urls = await feedsService.getAllUrls('camera123');
+const urls = await feedsService.getAllUrls('1005963a');
 
 // Let user choose quality
 const qualitySelect = document.getElementById('quality');
-if (urls.multipartUrl) {
+if (urls?.multipartUrl) {
   qualitySelect.innerHTML += '<option value="preview">Preview Quality</option>';
 }
 
 // Get main stream for high quality
-const mainUrls = await feedsService.getAllUrls('camera123', 'main');
-if (mainUrls.multipartUrl) {
+const mainUrls = await feedsService.getAllUrls('1005963a', 'main');
+if (mainUrls?.multipartUrl) {
   qualitySelect.innerHTML += '<option value="main">High Quality</option>';
 }
 
 // Switch quality based on selection
 qualitySelect.addEventListener('change', async (e) => {
-  const streamUrl = await feedsService.getMultipartUrl('camera123', e.target.value);
-  document.getElementById('videoPlayer').src = streamUrl;
+  const streamUrl = await feedsService.getMultipartUrl('1005963a', e.target.value);
+  if (streamUrl) {
+    document.getElementById('videoPlayer').src = streamUrl;
+  } else {
+    console.error(`No ${e.target.value} stream available for this camera`);
+  }
 });
+```
+
+#### **Complete Vue.js Application Example**
+This example shows the exact pattern used in our Home.vue component:
+
+```javascript
+// Vue.js reactive data
+const cameraId = ref('1005963a')
+const loading = ref(false)
+const error = ref('')
+const cameraInfo = ref(null)
+const multipartUrl = ref(null)
+const streamStatus = ref('Stopped')
+
+// Load camera and initialize live stream
+const loadCamera = async () => {
+  if (!cameraId.value.trim()) {
+    error.value = 'Please enter a camera ID'
+    return
+  }
+
+  loading.value = true
+  error.value = ''
+  cameraInfo.value = null
+  multipartUrl.value = null
+  streamStatus.value = 'Loading...'
+
+  try {
+    // Get camera information
+    const camera = await cameraService.getCameraById(cameraId.value.trim())
+    cameraInfo.value = camera
+
+    // Step 1: Initialize the media session cookie
+    await mediaSessionService.initializeMediaSession()
+    
+    // Step 2: Get the multipart URL using the feeds service
+    const feedMultipartUrl = await feedsService.getMultipartUrl(cameraId.value.trim(), 'preview')
+    
+    if (feedMultipartUrl) {
+      multipartUrl.value = feedMultipartUrl
+      streamStatus.value = 'Live'
+    } else {
+      error.value = 'No preview multipart URL found for this camera'
+      streamStatus.value = 'Error'
+    }
+  } catch (err) {
+    console.error('Error loading camera:', err)
+    error.value = err.message || 'Failed to load camera information'
+    streamStatus.value = 'Error'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load available cameras list
+const loadCameras = async () => {
+  try {
+    const camerasResponse = await cameraService.listCameras({
+      include: ['status'],
+      sort: ['+name'],
+      pageSize: 5
+    })
+    return camerasResponse.results || []
+  } catch (err) {
+    console.error('Error loading cameras:', err)
+    throw err
+  }
+}
 ```
 
 ## User Service

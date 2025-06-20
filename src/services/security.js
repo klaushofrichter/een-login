@@ -5,15 +5,98 @@
 
 class SecurityService {
   constructor() {
-    this.allowedDomains = [
-      '127.0.0.1', 
-      'klaushofrichter.github.io'
+    // Centralized allowed domains configuration
+    this.allowedDomainConfigs = [
+      {
+        domain: '127.0.0.1',
+        protocols: ['http'],
+        ports: [3333]
+      },
+      {
+        domain: 'klaushofrichter.github.io',
+        protocols: ['https'],
+        ports: [443] // Default HTTPS port
+      }
     ];
+  }
+
+  /**
+   * Get allowed domains (hostnames only)
+   */
+  get allowedDomains() {
+    return this.allowedDomainConfigs.map(config => config.domain);
+  }
+
+  /**
+   * Get allowed origins (full URLs with protocol and port)
+   */
+  get allowedOrigins() {
+    const origins = [];
     
-    this.allowedOrigins = [
-      'http://127.0.0.1:3333',
-      'https://klaushofrichter.github.io'
-    ];
+    this.allowedDomainConfigs.forEach(config => {
+      config.protocols.forEach(protocol => {
+        config.ports.forEach(port => {
+          // Only include port in URL if it's not the default for the protocol
+          const isDefaultPort = (protocol === 'https' && port === 443) || 
+                               (protocol === 'http' && port === 80);
+          
+          const origin = isDefaultPort 
+            ? `${protocol}://${config.domain}`
+            : `${protocol}://${config.domain}:${port}`;
+            
+          origins.push(origin);
+        });
+      });
+    });
+    
+    return origins;
+  }
+
+  /**
+   * Add a new allowed domain configuration
+   * @param {string} domain - The domain/hostname
+   * @param {string[]} protocols - Allowed protocols ['http', 'https']
+   * @param {number[]} ports - Allowed ports [80, 443, 3333, etc.]
+   */
+  addAllowedDomain(domain, protocols = ['https'], ports = [443]) {
+    this.allowedDomainConfigs.push({
+      domain,
+      protocols,
+      ports
+    });
+  }
+
+  /**
+   * Remove an allowed domain configuration
+   * @param {string} domain - The domain to remove
+   */
+  removeAllowedDomain(domain) {
+    this.allowedDomainConfigs = this.allowedDomainConfigs.filter(
+      config => config.domain !== domain
+    );
+  }
+
+  /**
+   * Check if a specific origin is allowed
+   * @param {string} origin - Full origin to check (e.g., 'https://example.com:443')
+   * @returns {boolean}
+   */
+  isOriginAllowed(origin) {
+    try {
+      const url = new URL(origin);
+      const domain = url.hostname;
+      const protocol = url.protocol.slice(0, -1); // Remove trailing ':'
+      const port = parseInt(url.port) || (protocol === 'https' ? 443 : 80);
+
+      return this.allowedDomainConfigs.some(config =>
+        config.domain === domain &&
+        config.protocols.includes(protocol) &&
+        config.ports.includes(port)
+      );
+    } catch (error) {
+      console.warn('🚫 Security: Invalid origin format:', origin);
+      return false;
+    }
   }
 
   /**
@@ -36,10 +119,11 @@ class SecurityService {
    * Validate origin for API requests
    */
   validateOrigin(origin = window.location.origin) {
-    const isAuthorized = this.allowedOrigins.includes(origin);
+    const isAuthorized = this.isOriginAllowed(origin);
     
     if (!isAuthorized) {
       console.error(`🚫 Security: Unauthorized origin ${origin}`);
+      console.log('Allowed origins:', this.allowedOrigins);
       return false;
     }
     

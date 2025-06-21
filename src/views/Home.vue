@@ -133,20 +133,86 @@
                   </p>
                 </div>
 
-                <!-- Camera Image -->
+                <!-- Camera Image/Live Player -->
                 <div v-if="multipartUrl" class="text-center">
-                  <h5 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Live Stream</h5>
-                  <div class="inline-block border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                  <div class="flex items-center justify-between mb-2">
+                    <h5 class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {{ showLivePlayer ? 'Live HD Video Stream' : 'Live Preview Video Stream' }}
+                    </h5>
+                    <div class="flex gap-2">
+                      <button v-if="showLivePlayer"
+                              @click="switchToPreview"
+                              class="text-xs px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Back to Preview
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Error Display -->
+                  <div v-if="livePlayerError" class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                    <p class="text-sm text-red-700 dark:text-red-400">{{ livePlayerError }}</p>
+                  </div>
+                  
+                  <!-- Preview Image (when not showing live player) -->
+                  <div v-if="!showLivePlayer" 
+                       class="relative inline-block border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                       @click="switchToLivePlayer"
+                       title="Click to switch to high quality live video player">
                     <img
+                      ref="previewImage"
                       :src="multipartUrl"
                       :alt="cameraInfo?.name || 'Camera Stream'"
-                      class="max-w-full h-auto"
+                      class="max-w-full h-auto block"
                       style="max-height: 400px;"
+                      @load="captureImageDimensions"
                     />
+                    <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 transition-all">
+                      <div class="text-white text-sm font-medium opacity-0 hover:opacity-100 transition-opacity">
+                        🎥 Click for HD Video
+                      </div>
+                    </div>
                   </div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    Status: {{ streamStatus }}
-                  </p>
+
+                  <!-- Live Player Video (when showing live player) -->
+                  <div v-else class="relative inline-block border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-black"
+                       :style="{ maxWidth: '100%', maxHeight: '400px', width: videoDimensions.width ? `${videoDimensions.width}px` : 'auto', height: videoDimensions.height ? `${videoDimensions.height}px` : 'auto' }">
+                    <video 
+                      id="livePlayerVideo" 
+                      autoplay 
+                      muted 
+                      controls
+                      class="w-full h-full object-contain"
+                      :style="{ maxHeight: '400px' }"
+                      @error="handleVideoError"
+                    />
+                    
+                    <!-- Loading Overlay -->
+                    <div v-if="livePlayerLoading" 
+                         class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75">
+                      <div class="text-white text-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                        <p class="text-sm">Loading HD video stream...</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Status and Controls -->
+                  <div class="mt-2 space-y-1">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      Status: {{ showLivePlayer ? (livePlayerConnected ? 'HD Connected' : 'HD Disconnected') : streamStatus }}
+                    </p>
+                    
+                    <div v-if="showLivePlayer" class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                      <div class="flex justify-center gap-4">
+                        <span><strong>Quality:</strong> High Definition</span>
+                        <span><strong>Protocol:</strong> WebRTC/HLS</span>
+                      </div>
+                    </div>
+                    
+                    <p v-else class="text-xs text-blue-600 dark:text-blue-400">
+                      Click on the image above to switch to high quality live video player
+                    </p>
+                  </div>
                 </div>
 
                 <!-- Available Sensors Section -->
@@ -233,7 +299,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { APP_NAME } from '../constants'
 import { cameraService } from '../services/cameras'
@@ -241,9 +307,8 @@ import { mediaService } from '../services/media'
 import { mediaSessionService } from '../services/mediaSession'
 import { feedsService } from '../services/feeds'
 import { sensorService } from '../services/sensors'
+import LivePlayer from '@een/live-video-web-sdk'
 
-// We import auth store for potential future use but don't use it directly yet
-// eslint-disable-next-line no-unused-vars
 const authStore = useAuthStore()
 
 // Reactive data
@@ -259,6 +324,13 @@ const sensorsError = ref('')
 const cameras = ref([])
 const camerasLoading = ref(false)
 const camerasError = ref('')
+const showLivePlayer = ref(false)
+const livePlayerError = ref('')
+const livePlayerLoading = ref(false)
+const livePlayerConnected = ref(false)
+const videoDimensions = ref({ width: 0, height: 0 })
+const previewImage = ref(null)
+let livePlayerInstance = null
 
 // Load camera information and get multipart URL
 const loadCamera = async () => {
@@ -361,9 +433,150 @@ const formatTimestamp = (timestamp) => {
   }
 }
 
+const captureImageDimensions = () => {
+  // Capture the actual rendered dimensions of the preview image
+  if (previewImage.value) {
+    videoDimensions.value = {
+      width: previewImage.value.offsetWidth,
+      height: previewImage.value.offsetHeight
+    }
+  }
+}
+
+const switchToLivePlayer = async () => {
+  if (!cameraId.value || !authStore.token) {
+    livePlayerError.value = 'Camera ID and authentication token are required'
+    return
+  }
+
+  // Capture current image dimensions before switching
+  captureImageDimensions()
+
+  showLivePlayer.value = true
+  
+  // Wait for DOM to be updated
+  await nextTick()
+  
+  // Initialize LivePlayer
+  await initializeLivePlayer()
+}
+
+const switchToPreview = () => {
+  // Stop and cleanup LivePlayer
+  if (livePlayerInstance) {
+    try {
+      livePlayerInstance.stop()
+    } catch (err) {
+      console.warn('Error stopping LivePlayer:', err)
+    }
+    livePlayerInstance = null
+  }
+  
+  showLivePlayer.value = false
+  livePlayerConnected.value = false
+  livePlayerError.value = ''
+  // Reset dimensions so they get recaptured when needed
+  videoDimensions.value = { width: 0, height: 0 }
+}
+
+const initializeLivePlayer = async () => {
+  livePlayerLoading.value = true
+  livePlayerError.value = ''
+  livePlayerConnected.value = false
+
+  try {
+    const videoElement = document.getElementById('livePlayerVideo')
+    if (!videoElement) {
+      throw new Error('Video element not found')
+    }
+
+    // Get base URL from auth store or construct it
+    const baseUrl = authStore.baseUrl || `https://api.${authStore.subdomain}.eagleeyenetworks.com`
+    
+    const config = {
+      videoElement: videoElement,
+      cameraId: cameraId.value,
+      baseUrl: baseUrl,
+      jwt: authStore.token
+    }
+
+    livePlayerInstance = new LivePlayer()
+    
+    // Set up event listeners if available
+    if (livePlayerInstance.addEventListener) {
+      livePlayerInstance.addEventListener('connected', () => {
+        livePlayerConnected.value = true
+        livePlayerLoading.value = false
+      })
+      
+      livePlayerInstance.addEventListener('disconnected', () => {
+        livePlayerConnected.value = false
+      })
+      
+      livePlayerInstance.addEventListener('error', (error) => {
+        console.error('LivePlayer error:', error)
+        livePlayerError.value = error.message || 'LivePlayer error occurred'
+        livePlayerConnected.value = false
+        livePlayerLoading.value = false
+      })
+    }
+
+    await livePlayerInstance.start(config)
+    
+    // If no event listeners, set connected after start
+    if (!livePlayerInstance.addEventListener) {
+      livePlayerConnected.value = true
+      livePlayerLoading.value = false
+    }
+
+  } catch (err) {
+    console.error('Error initializing LivePlayer:', err)
+    livePlayerError.value = err.message || 'Failed to initialize video player'
+    livePlayerConnected.value = false
+    livePlayerLoading.value = false
+  }
+}
+
+const handleVideoError = (event) => {
+  console.error('Video error:', event)
+  livePlayerError.value = 'Video playback error occurred'
+  livePlayerConnected.value = false
+}
+
+
+
+// Cleanup function
+const cleanup = () => {
+  if (livePlayerInstance) {
+    try {
+      livePlayerInstance.stop()
+    } catch (err) {
+      console.warn('Error stopping LivePlayer during cleanup:', err)
+    }
+    livePlayerInstance = null
+  }
+}
+
+// Watch for camera changes to cleanup previous instance and switch back to preview
+watch(cameraId, () => {
+  if (livePlayerInstance) {
+    cleanup()
+    showLivePlayer.value = false
+  }
+})
+
 onMounted(() => {
   document.title = `${APP_NAME} - Home`
   loadCameras()
   loadSensors()
+  
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', cleanup)
+})
+
+// Cleanup when component is unmounted
+onBeforeUnmount(() => {
+  cleanup()
+  window.removeEventListener('beforeunload', cleanup)
 })
 </script>

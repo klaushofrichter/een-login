@@ -7,7 +7,7 @@ details and official information from the original source. The documentation her
 independently and is not maintained or endorsed by Eagle Eye Networks. 
 
 Please note that there is a version of this EEN Login application that shows more details 
-and practial examples [here](https://github.com/klaushofrichter/een-playgroundimage.png).
+and practial examples [here](https://github.com/klaushofrichter/een-playground).
 
 ## Table of Contents
 - [Camera Service](#camera-service)
@@ -19,6 +19,7 @@ and practial examples [here](https://github.com/klaushofrichter/een-playgroundim
 - [Measurements Service](#measurements-service)
 - [Sensor Gateways Service](#sensor-gateways-service)
 - [Sensor Summary Service](#sensor-summary-service)
+- [LivePlayer Integration](#liveplayer-integration)
 
 ## Camera Service
 
@@ -907,3 +908,332 @@ Retrieves sensor summaries visible to the current user.
   - `preferred` (boolean): If true, only preferred measurements are returned. If false, only non-preferred. If omitted, all are returned.
 
 **Returns:** Promise<Object> - Paginated response with sensor summaries 
+
+## LivePlayer Integration
+
+The LivePlayer provides high-quality live video streaming capabilities using the `@een/live-video-web-sdk` package. This integration allows seamless switching between preview images and high-definition live video streams.
+
+### Installation
+
+The LivePlayer SDK is already included in this project:
+
+```json
+"dependencies": {
+  "@een/live-video-web-sdk": "^1.9.2"
+}
+```
+
+### Basic Usage
+
+#### Import and Setup
+
+```javascript
+import LivePlayer from '@een/live-video-web-sdk'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+// Reactive state
+const showLivePlayer = ref(false)
+const livePlayerLoading = ref(false)
+const livePlayerConnected = ref(false)
+const livePlayerError = ref('')
+let livePlayerInstance = null
+```
+
+#### HTML Template
+
+```html
+<template>
+  <!-- Video container for LivePlayer -->
+  <div v-if="showLivePlayer" class="video-container">
+    <video 
+      id="livePlayerVideo" 
+      autoplay 
+      muted 
+      controls
+      class="w-full h-full object-contain"
+      @error="handleVideoError"
+    />
+    
+    <!-- Loading overlay -->
+    <div v-if="livePlayerLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading HD video stream...</p>
+    </div>
+  </div>
+</template>
+```
+
+#### LivePlayer Configuration
+
+```javascript
+const initializeLivePlayer = async () => {
+  livePlayerLoading.value = true
+  livePlayerError.value = ''
+  livePlayerConnected.value = false
+
+  try {
+    const videoElement = document.getElementById('livePlayerVideo')
+    if (!videoElement) {
+      throw new Error('Video element not found')
+    }
+
+    // Configuration object
+    const config = {
+      videoElement: videoElement,
+      cameraId: "1005963a", // Your camera ID
+      baseUrl: "https://api.c000.eagleeyenetworks.com", // Your EEN API base URL
+      jwt: "eyJraWQiOi..." // Your authentication JWT token
+    }
+
+    // Create and start LivePlayer instance
+    livePlayerInstance = new LivePlayer()
+    
+    // Optional: Set up event listeners
+    if (livePlayerInstance.addEventListener) {
+      livePlayerInstance.addEventListener('connected', () => {
+        livePlayerConnected.value = true
+        livePlayerLoading.value = false
+      })
+      
+      livePlayerInstance.addEventListener('disconnected', () => {
+        livePlayerConnected.value = false
+      })
+      
+      livePlayerInstance.addEventListener('error', (error) => {
+        console.error('LivePlayer error:', error)
+        livePlayerError.value = error.message || 'LivePlayer error occurred'
+        livePlayerConnected.value = false
+        livePlayerLoading.value = false
+      })
+    }
+
+    // Start the live stream
+    await livePlayerInstance.start(config)
+    
+    // If no event listeners, set connected after start
+    if (!livePlayerInstance.addEventListener) {
+      livePlayerConnected.value = true
+      livePlayerLoading.value = false
+    }
+
+  } catch (err) {
+    console.error('Error initializing LivePlayer:', err)
+    livePlayerError.value = err.message || 'Failed to initialize video player'
+    livePlayerConnected.value = false
+    livePlayerLoading.value = false
+  }
+}
+```
+
+#### Cleanup and Resource Management
+
+```javascript
+const cleanup = () => {
+  if (livePlayerInstance) {
+    try {
+      livePlayerInstance.stop()
+    } catch (err) {
+      console.warn('Error stopping LivePlayer:', err)
+    }
+    livePlayerInstance = null
+  }
+}
+
+// Cleanup when component unmounts
+onBeforeUnmount(() => {
+  cleanup()
+})
+
+// Cleanup when switching away from live player
+const switchToPreview = () => {
+  cleanup()
+  showLivePlayer.value = false
+  livePlayerConnected.value = false
+  livePlayerError.value = ''
+}
+```
+
+### Integration Example (Vue 3 Composition API)
+
+Here's a complete example of how LivePlayer is integrated in the Home.vue component:
+
+```javascript
+<template>
+  <div class="camera-viewer">
+    <!-- Preview Image (default view) -->
+    <div v-if="!showLivePlayer" 
+         class="preview-container"
+         @click="switchToLivePlayer">
+      <img :src="multipartUrl" alt="Camera Preview" />
+      <div class="click-overlay">
+        🎥 Click for HD Video
+      </div>
+    </div>
+
+    <!-- LivePlayer Video (HD view) -->
+    <div v-else class="live-player-container">
+      <video 
+        id="livePlayerVideo" 
+        autoplay 
+        muted 
+        controls
+        @error="handleVideoError"
+      />
+      
+      <div v-if="livePlayerLoading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading HD video stream...</p>
+      </div>
+      
+      <button @click="switchToPreview" class="back-button">
+        Back to Preview
+      </button>
+    </div>
+
+    <!-- Status Display -->
+    <div class="status-info">
+      <p>Status: {{ showLivePlayer ? (livePlayerConnected ? 'HD Connected' : 'HD Disconnected') : 'Preview Active' }}</p>
+      <div v-if="showLivePlayer" class="stream-info">
+        <span>Quality: High Definition</span>
+        <span>Protocol: WebRTC/HLS</span>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div v-if="livePlayerError" class="error-message">
+      {{ livePlayerError }}
+    </div>
+  </div>
+</template>
+
+<script setup>
+import LivePlayer from '@een/live-video-web-sdk'
+import { ref, onBeforeUnmount, nextTick } from 'vue'
+import { useAuthStore } from '../stores/auth'
+
+const authStore = useAuthStore()
+
+// Reactive state
+const showLivePlayer = ref(false)
+const livePlayerLoading = ref(false)
+const livePlayerConnected = ref(false)
+const livePlayerError = ref('')
+const multipartUrl = ref('') // From feeds service
+let livePlayerInstance = null
+
+// Switch from preview image to LivePlayer
+const switchToLivePlayer = async () => {
+  if (!cameraId.value || !authStore.token) {
+    livePlayerError.value = 'Camera ID and authentication token are required'
+    return
+  }
+
+  showLivePlayer.value = true
+  await nextTick()
+  await initializeLivePlayer()
+}
+
+// Switch back to preview image
+const switchToPreview = () => {
+  cleanup()
+  showLivePlayer.value = false
+  livePlayerConnected.value = false
+  livePlayerError.value = ''
+}
+
+// Initialize LivePlayer with authentication
+const initializeLivePlayer = async () => {
+  livePlayerLoading.value = true
+  livePlayerError.value = ''
+
+  try {
+    const videoElement = document.getElementById('livePlayerVideo')
+    const baseUrl = authStore.baseUrl || `https://api.${authStore.subdomain}.eagleeyenetworks.com`
+    
+    const config = {
+      videoElement: videoElement,
+      cameraId: cameraId.value,
+      baseUrl: baseUrl,
+      jwt: authStore.token
+    }
+
+    livePlayerInstance = new LivePlayer()
+    await livePlayerInstance.start(config)
+    
+    livePlayerConnected.value = true
+    livePlayerLoading.value = false
+  } catch (err) {
+    livePlayerError.value = err.message || 'Failed to initialize video player'
+    livePlayerLoading.value = false
+  }
+}
+
+// Cleanup resources
+const cleanup = () => {
+  if (livePlayerInstance) {
+    try {
+      livePlayerInstance.stop()
+    } catch (err) {
+      console.warn('Error stopping LivePlayer:', err)
+    }
+    livePlayerInstance = null
+  }
+}
+
+// Handle video errors
+const handleVideoError = (event) => {
+  console.error('Video error:', event)
+  livePlayerError.value = 'Video playback error occurred'
+  livePlayerConnected.value = false
+}
+
+onBeforeUnmount(() => {
+  cleanup()
+})
+</script>
+```
+
+### Configuration Options
+
+The LivePlayer accepts the following configuration options:
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `videoElement` | HTMLVideoElement | Yes | The video DOM element for playback |
+| `cameraId` | string | Yes | The EEN camera ID to stream from |
+| `baseUrl` | string | Yes | The EEN API base URL (e.g., `https://api.c000.eagleeyenetworks.com`) |
+| `jwt` | string | Yes | Valid JWT authentication token |
+
+### Event Handling
+
+The LivePlayer may support the following events (if available in your SDK version):
+
+- `connected` - Fired when the live stream connection is established
+- `disconnected` - Fired when the live stream connection is lost
+- `error` - Fired when an error occurs during streaming
+
+### Best Practices
+
+1. **Authentication**: Always ensure valid JWT tokens before initializing LivePlayer
+2. **Cleanup**: Properly stop LivePlayer instances when components unmount or switch views
+3. **Error Handling**: Implement comprehensive error handling for network and streaming issues
+4. **Loading States**: Show loading indicators while the stream initializes
+5. **Responsive Design**: Ensure video containers adapt to different screen sizes
+6. **User Experience**: Provide clear status indicators and easy navigation between views
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Video Element Not Found**: Ensure the video element exists in DOM before initializing
+2. **Authentication Errors**: Verify JWT token is valid and not expired
+3. **Network Issues**: Check network connectivity and firewall settings
+4. **Browser Compatibility**: Ensure browser supports WebRTC and modern video codecs
+5. **Camera Offline**: Verify camera is online and accessible through EEN API
+
+**Debug Tips:**
+
+- Check browser console for detailed error messages
+- Verify camera ID is correct and accessible
+- Test authentication with other EEN API endpoints first
+- Use browser developer tools to inspect network requests

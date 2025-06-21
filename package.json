@@ -1,7 +1,7 @@
 {
   "name": "een-login",
-  "version": "0.1.118",
-  "lastCommit": "2025-06-20T01:04:38.685Z",
+  "version": "0.1.123",
+  "lastCommit": "2025-06-21T02:21:05.703Z",
   "private": true,
   "type": "module",
   "base": "/een-login/",
@@ -23,6 +23,7 @@
     "test:debug": "playwright test --debug"
   },
   "dependencies": {
+    "@een/live-video-web-sdk": "^1.9.2",
     "axios": "^1.6.7",
     "gh-pages": "^6.3.0",
     "pinia": "^2.1.7",

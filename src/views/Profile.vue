@@ -71,27 +71,38 @@
                   Credentials
                 </h4>
                 <div class="space-y-4">
-                  <div class="grid grid-cols-8 gap-4">
-                    <div class="col-span-6">
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                        >Base URL</label
-                      >
-                      <input
-                        :value="authStore.hostname"
-                        readonly
-                        class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm sm:text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
-                      />
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                      >Base URL</label
+                    >
+                    <div class="flex items-center space-x-4">
+                      <div class="flex-1">
+                        <input
+                          :value="authStore.hostname"
+                          readonly
+                          class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm sm:text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
+                        />
+                      </div>
+                      <div class="flex space-x-2">
+                        <button
+                          class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          @click="copyBaseUrl"
+                        >
+                          Copy Base URL
+                        </button>
+                      </div>
                     </div>
-                    <div class="col-span-2">
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                        >Port</label
-                      >
-                      <input
-                        :value="authStore.port"
-                        readonly
-                        class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm sm:text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
-                      />
-                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                      >Port</label
+                    >
+                    <input
+                      :value="authStore.port"
+                      readonly
+                      class="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm sm:text-sm dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
+                    />
                   </div>
 
                   <div>
@@ -263,6 +274,12 @@ async function fetchUserProfile() {
 function copyToken() {
   if (authStore.token) {
     navigator.clipboard.writeText(authStore.token)
+  }
+}
+
+function copyBaseUrl() {
+  if (authStore.hostname) {
+    navigator.clipboard.writeText(authStore.hostname)
   }
 }
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Page Redirect</title>
+  <script>
+    // Extract the pathname from the current URL
+    const path = window.location.pathname;
+    
+    // Get the GitHub Pages repository name (in this case 'een-login')
+    const repoName = '/een-login';
+    
+    // Remove the repository name from the path if it's at the beginning
+    let redirectPath = path;
+    if (path.indexOf(repoName) === 0) {
+      redirectPath = path.substr(repoName.length);
+    }
+    
+    // Create the redirect URL with the path as a query parameter
+    const redirectUrl = `${window.location.origin}${repoName}/?redirect=${encodeURIComponent(redirectPath)}`;
+    
+    // Perform the redirect
+    window.location.replace(redirectUrl);
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html> 

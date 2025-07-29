@@ -1,0 +1,1239 @@
+# Node API for the EEN API Endpoints - Documentation
+
+This document provides comprehensive documentation for the EEN (Eagle Eye Networks) API services used in this application. Please vist the 
+[Eagle Eye Networks Developer Portal](https://developer.eagleeyenetworks.com/docs/getting-started)
+for more 
+details and official information from the original source. The documentation here was created 
+independently and is not maintained or endorsed by Eagle Eye Networks. 
+
+Please note that there is a version of this EEN Login application that shows more details 
+and practial examples [here](https://github.com/klaushofrichter/een-playground).
+
+## Table of Contents
+- [Camera Service](#camera-service)
+- [Sensor Service](#sensor-service)
+- [Media Service](#media-service)
+- [Media Session Service](#media-session-service)
+- [Feeds Service](#feeds-service)
+- [User Service](#user-service)
+- [Measurements Service](#measurements-service)
+- [Sensor Gateways Service](#sensor-gateways-service)
+- [Sensor Summary Service](#sensor-summary-service)
+- [LivePlayer Integration](#liveplayer-integration)
+
+## Camera Service
+
+The Camera Service provides functionality to interact with EEN Camera APIs.
+
+### Methods
+
+#### `listCameras(options = {})`
+Retrieves a paginated list of cameras with various filtering options.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `include` (Array<string>): Fields to include in response
+  - `sort` (Array<string>): Sorting options
+  - `pageToken` (string): Page token for pagination
+  - `pageSize` (number): Number of results per page
+  - `locationId__in` (Array<string>): Filter by location IDs
+  - `bridgeId__in` (Array<string>): Filter by bridge IDs
+  - `multiCameraId` (string): Filter by multi camera ID
+  - `multiCameraId__ne` (string): Filter by multi camera ID not equal
+  - `multiCameraId__in` (Array<string>): Filter by multi camera IDs
+  - `tags__contains` (Array<string>): Filter by tags (all must be present)
+  - `tags__any` (Array<string>): Filter by tags (any must be present)
+  - `packages__contains` (Array<string>): Filter by packages
+  - `layoutId` (string): Filter by layout ID
+  - `name__contains` (string): Filter by name containing substring
+  - `name__in` (Array<string>): Filter by exact names
+  - `name` (string): Filter by exact name
+  - `id__in` (Array<string>): Filter by camera IDs
+  - `id__notIn` (Array<string>): Exclude camera IDs
+  - `id__contains` (string): Filter by ID containing substring
+  - `shared` (boolean): Filter by shared status
+  - `sharedCameraAccount` (string): Filter by sharing account ID
+  - `firstResponder` (boolean): Filter by first responder sharing
+  - `directToCloud` (boolean): Filter by direct to cloud connection
+  - `speakerId__in` (Array<string>): Filter by speaker IDs
+  - `q` (string): Search query
+  - `qRelevance__gte` (number): Minimum search relevance
+  - `enabledAnalytics__contains` (Array<string>): Filter by enabled analytics
+  - `status__in` (Array<string>): Filter by status values
+  - `status__ne` (string): Filter by status not equal
+
+**Returns:** Promise<Object> - Paginated list of cameras
+
+#### `getCameraById(cameraId, options = {})`
+Retrieves camera details by ID.
+
+**Parameters:**
+- `cameraId` (string): The ID of the camera to fetch
+- `options` (Object, optional):
+  - `include` (Array<string>): Fields to include in response
+
+**Returns:** Promise<Object> - Camera details
+
+#### `addCamera(cameraData)`
+Adds a new camera.
+
+**Parameters:**
+- `cameraData` (Object): Camera data to create
+
+**Returns:** Promise<Object> - Created camera details
+
+#### `updateCamera(cameraId, updateData)`
+Updates an existing camera.
+
+**Parameters:**
+- `cameraId` (string): The ID of the camera to update
+- `updateData` (Object): Data to update
+
+**Returns:** Promise<Object> - Updated camera details
+
+#### `deleteCamera(cameraId)`
+Deletes a camera.
+
+**Parameters:**
+- `cameraId` (string): The ID of the camera to delete
+
+**Returns:** Promise<void>
+
+#### `updateBulkCameras(bulkUpdateData)`
+Updates multiple cameras in bulk.
+
+**Parameters:**
+- `bulkUpdateData` (Object): Bulk update data
+
+**Returns:** Promise<Object> - Update results
+
+#### `getCameraMetrics(cameraId, options = {})`
+Retrieves camera metrics.
+
+**Parameters:**
+- `cameraId` (string): The ID of the camera
+- `options` (Object, optional): Query options
+
+**Returns:** Promise<Object> - Camera metrics
+
+## Sensor Service
+
+The Sensor Service provides functionality to interact with EEN Sensor Device APIs.
+
+### Methods
+
+#### `getSensorDeviceById(sensorDeviceId, include = [])`
+Retrieves sensor device details by ID.
+
+**Parameters:**
+- `sensorDeviceId` (string): The ID of the sensor device to fetch
+- `include` (Array<string>, optional): Fields to include (status, timeZone, notes, deviceInfo, sampler, battery, bluetooth, locationSummary, gatewaySummary)
+
+**Returns:** Promise<Object> - Sensor device details
+
+#### `listSensorDevices(options = {})`
+Retrieves a paginated list of sensor devices.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `locationId__in` (Array<string>): List of Location IDs to filter on
+  - `parentId__in` (Array<string>): List of Parent IDs to filter on
+  - `propertyType__in` (Array<string>): List of property types to filter on
+  - `thresholdLevel__in` (Array<string>): List of threshold levels to filter on
+  - `cameraId__in` (Array<string>): List of Camera IDs to filter on
+  - `id__in` (Array<string>): List of Sensor Device IDs to filter on
+  - `q` (string): Text search query
+  - `qRelevance__gte` (number): Minimum similarity threshold for text search (0-1)
+  - `include` (Array<string>): Fields to include in response
+  - `sort` (Array<string>): Sorting options
+  - `pageToken` (string): Page token for pagination
+  - `pageSize` (number): Number of results per page
+
+**Returns:** Promise<Object> - Paginated list of sensor devices
+
+#### `addSensorDevice(sensorDeviceData)`
+Adds a new sensor device.
+
+**Parameters:**
+- `sensorDeviceData` (Object):
+  - `name` (string): The name of the sensor device
+  - `guid` (string): The GUID of the sensor device
+  - `locationId` (string, optional): The location ID
+  - `primaryCameraId` (string, optional): The primary camera ID
+  - `notes` (string, optional): Notes about the sensor device
+
+**Returns:** Promise<Object> - Created sensor device details
+
+#### `updateSensorDevice(sensorDeviceId, updateData)`
+Updates an existing sensor device.
+
+**Parameters:**
+- `sensorDeviceId` (string): The ID of the sensor device to update
+- `updateData` (Object):
+  - `name` (string, optional): The name of the sensor device
+  - `locationId` (string, optional): The location ID
+  - `primaryCameraId` (string, optional): The primary camera ID
+  - `notes` (string, optional): Notes about the sensor device
+
+**Returns:** Promise<void>
+
+#### `deleteSensorDevice(sensorDeviceId)`
+Deletes a sensor device.
+
+**Parameters:**
+- `sensorDeviceId` (string): The ID of the sensor device to delete
+
+**Returns:** Promise<void>
+
+## Media Service
+
+The Media Service provides comprehensive functionality to interact with EEN Media APIs for retrieving live and recorded media content.
+
+### Methods
+
+#### `listMedia(options = {})`
+Lists media intervals for a device with various filtering options.
+
+**Parameters:**
+- `options` (Object, required):
+  - `deviceId` (string): The ID of the device (required)
+  - `type` (string): Stream type ('preview' or 'main') (required)
+  - `mediaType` (string): Media type ('video' or 'image') (required)
+  - `startTimestamp__gte` (string): Start timestamp (ISO 8601) (required)
+  - `endTimestamp__lte` (string, optional): End timestamp (ISO 8601)
+  - `coalesce` (boolean, optional): Coalesce connected intervals (default: true)
+  - `include` (Array<string>, optional): Fields to include ('flvUrl', 'rtspUrl', 'rtspsUrl', 'multipartUrl', 'mp4Url')
+  - `pageToken` (string, optional): Page token for pagination
+  - `pageSize` (number, optional): Number of results per page
+
+**Returns:** Promise<Object> - Paginated list of media intervals
+
+**Example:**
+```javascript
+const mediaList = await mediaService.listMedia({
+  deviceId: '1005963a',
+  type: 'preview',
+  mediaType: 'video',
+  startTimestamp__gte: '2023-01-01T00:00:00Z',
+  endTimestamp__lte: '2023-01-01T23:59:59Z',
+  include: ['flvUrl', 'mp4Url']
+});
+```
+
+#### `getLiveImage(deviceId, type = 'preview')`
+Retrieves a live image from a camera.
+
+**Parameters:**
+- `deviceId` (string): The ID of the device (camera)
+- `type` (string, optional): The type of stream to fetch ('preview' only for live images, default: 'preview')
+
+**Returns:** Promise<Object>:
+- `image` (string|null): Base64 encoded image data with data URI format
+- `timestamp` (string|null): Image timestamp from X-Een-Timestamp header
+- `prevToken` (string|null): Previous token from X-Een-PrevToken header
+
+**Example:**
+```javascript
+const liveImage = await mediaService.getLiveImage('1005963a');
+if (liveImage.image) {
+  // Use the base64 image directly in an img tag
+  document.getElementById('livePreview').src = liveImage.image;
+} else {
+  console.error('No live image available for this camera');
+}
+```
+
+#### `getRecordedImage(options = {})`
+Retrieves a recorded image from a camera with advanced filtering and navigation options.
+
+**Parameters:**
+- `options` (Object):
+  - `deviceId` (string, optional): The ID of the device (camera) - not required when using pageToken
+  - `pageToken` (string, optional): Token from previous request (X-Een-NextToken or X-Een-PrevToken)
+  - `type` (string, optional): Stream type ('preview' or 'main')
+  - `timestamp__lt` (string, optional): Return first image with timestamp less than
+  - `timestamp__lte` (string, optional): Return first image with timestamp less or equal
+  - `timestamp` (string, optional): Return image at this exact timestamp
+  - `timestamp__gte` (string, optional): Return first image with timestamp greater or equal
+  - `timestamp__gt` (string, optional): Return first image with timestamp greater than
+  - `overlayId__in` (Array<string>, optional): List of overlay IDs to include
+  - `include` (Array<string>, optional): Include options ('overlayEmbedded', 'overlaySvgHeader')
+
+**Returns:** Promise<Object>:
+- `image` (string|null): Base64 encoded image data with data URI format
+- `timestamp` (string|null): Image timestamp from X-Een-Timestamp header
+- `nextToken` (string|null): Next token from X-Een-NextToken header
+- `prevToken` (string|null): Previous token from X-Een-PrevToken header
+- `overlaySvg` (string|null): Overlay SVG data from X-Een-OverlaySvg header
+
+**Example:**
+```javascript
+// Get image at specific timestamp
+const recordedImage = await mediaService.getRecordedImage({
+  deviceId: '1005963a',
+  timestamp__gte: '2023-01-01T12:00:00Z',
+  type: 'main'
+});
+
+// Navigate using tokens
+if (recordedImage.nextToken) {
+  const nextImage = await mediaService.getRecordedImage({
+    pageToken: recordedImage.nextToken
+  });
+} else {
+  console.log('No more images available');
+}
+```
+
+#### `listRecordedImageFieldValues(deviceId, include = [])`
+Gets available field values for recorded images, useful for discovering available overlays.
+
+**Parameters:**
+- `deviceId` (string): The ID of the device (camera)
+- `include` (Array<string>, optional): Fields to include ('overlayId')
+
+**Returns:** Promise<Object> - Available field values
+
+**Example:**
+```javascript
+const fieldValues = await mediaService.listRecordedImageFieldValues('1005963a', ['overlayId']);
+console.log('Available overlays:', fieldValues.overlayId);
+```
+
+#### `getRecordedImageLegacy(deviceId, timestamp, type = 'preview')` ⚠️ Deprecated
+Legacy method for backward compatibility. Use `getRecordedImage` instead.
+
+**Parameters:**
+- `deviceId` (string): The ID of the device (camera)
+- `timestamp` (string): ISO 8601 timestamp for the image
+- `type` (string, optional): The type of image to fetch ('preview' or 'main', default: 'preview')
+
+**Returns:** Promise<Object>:
+- `image` (string|null): Base64 encoded image data
+- `timestamp` (string|null): Image timestamp
+- `prevToken` (string|null): Previous token for caching
+
+### Utility Methods
+
+#### `arrayBufferToBase64(buffer)`
+Converts ArrayBuffer to base64 string for image processing.
+
+**Parameters:**
+- `buffer` (ArrayBuffer): The array buffer to convert
+
+**Returns:** string - Base64 string
+
+## Media Session Service
+
+The Media Session Service manages media session cookies required for accessing media streams and URLs returned by the Media Service.
+
+### Methods
+
+#### `getMediaSession()`
+Retrieves the media session URL for setting session cookies.
+
+**Returns:** Promise<Object> - Media session URL response
+
+**Example:**
+```javascript
+const session = await mediaSessionService.getMediaSession();
+console.log('Session URL:', session.url);
+```
+
+#### `initializeMediaSession()`
+Initializes media session cookie by calling the session URL. This method fetches the session URL and makes a request to set the cookie automatically.
+
+**Returns:** Promise<boolean> - True if session was successfully initialized
+
+**Example:**
+```javascript
+try {
+  await mediaSessionService.initializeMediaSession();
+  console.log('Media session initialized');
+  // Now you can access media URLs that require session cookies
+} catch (error) {
+  console.error('Failed to initialize media session:', error);
+}
+```
+
+#### `getMediaSessionUrl()`
+Gets the media session URL for manual redirection or processing.
+
+**Returns:** Promise<string> - The session URL for manual redirection
+
+**Example:**
+```javascript
+const sessionUrl = await mediaSessionService.getMediaSessionUrl();
+window.location.href = sessionUrl; // Manual redirect
+```
+
+#### `isMediaSessionActive(testMediaUrl = null)`
+Checks if media session is likely active by testing access to a media endpoint.
+
+**Parameters:**
+- `testMediaUrl` (string, optional): A media URL to test
+
+**Returns:** Promise<boolean> - True if session appears to be active
+
+**Example:**
+```javascript
+const mediaUrl = 'https://media.eagleeyenetworks.com/stream/video.flv';
+const isActive = await mediaSessionService.isMediaSessionActive(mediaUrl);
+if (!isActive) {
+  await mediaSessionService.initializeMediaSession();
+}
+```
+
+### Media Session Workflow
+
+1. **Initialize Session**: Call `initializeMediaSession()` before accessing media URLs
+2. **Access Media**: Use media URLs returned by Media Service methods
+3. **Check Status**: Use `isMediaSessionActive()` to verify session validity
+4. **Re-initialize**: Call `initializeMediaSession()` again if session expires
+
+**Example Complete Workflow:**
+```javascript
+// Initialize media session
+await mediaSessionService.initializeMediaSession();
+
+// Get media intervals
+const mediaList = await mediaService.listMedia({
+  deviceId: '1005963a',
+  type: 'preview',
+  mediaType: 'video',
+  startTimestamp__gte: '2023-01-01T00:00:00Z',
+  include: ['flvUrl']
+});
+
+// Access the media URL (session cookie will be included automatically)
+const videoUrl = mediaList.results[0].flvUrl;
+```
+
+## Feeds Service
+
+The Feeds Service provides functionality to interact with EEN Feeds APIs for retrieving live streaming URLs and feed information for devices.
+
+### Methods
+
+#### `listFeeds(options = {})`
+Lists feeds for devices with comprehensive filtering options.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `deviceId` (string, optional): The device generating the feed
+  - `deviceId__in` (Array<string>, optional): Array of device IDs to filter feeds
+  - `type` (string, optional): Stream type ('main', 'preview', 'talkdown')
+  - `include` (Array<string>, optional): Fields to include in response
+  - `pageToken` (string, optional): Page token for pagination
+  - `pageSize` (number, optional): Number of results per page
+
+**Include Options:**
+- `'flvUrl'` - Flash video URL for HTTPS streaming
+- `'rtspUrl'` - RTSP protocol URL for media streaming
+- `'rtspsUrl'` - RTSP over TLS (secure) URL
+- `'localRtspUrl'` - Direct bridge RTSP URL
+- `'hlsUrl'` - HTTP Live Streaming URL
+- `'multipartUrl'` - Multipart HTTPS streaming URL (auto-refreshing)
+- `'webRtcUrl'` - WebRTC URL for real-time communication
+- `'audioPushHttpsUrl'` - Audio push URL for speakers
+
+**Returns:** Promise<Object> - Paginated list of feeds
+
+**Example:**
+```javascript
+// Get all feeds for a device with streaming URLs
+const feeds = await feedsService.listFeeds({
+  deviceId: '1005963a',
+  include: ['multipartUrl', 'flvUrl', 'hlsUrl']
+});
+
+// Filter by stream type
+const previewFeeds = await feedsService.listFeeds({
+  deviceId: '1005963a',
+  type: 'preview',
+  include: ['multipartUrl']
+});
+
+// Get feeds for multiple devices
+const multiDeviceFeeds = await feedsService.listFeeds({
+  deviceId__in: ['1005963a', '1005963b'],
+  include: ['multipartUrl', 'flvUrl']
+});
+```
+
+#### `getFeedsForDevice(deviceId, options = {})`
+Convenient method to get feeds for a specific device with optional filtering.
+
+**Parameters:**
+- `deviceId` (string): The device ID to get feeds for (required)
+- `options` (Object, optional):
+  - `type` (string, optional): Filter by stream type
+  - `include` (Array<string>, optional): Fields to include in response
+
+**Returns:** Promise<Object> - Feeds response for the device
+
+**Example:**
+```javascript
+// Get all feeds for a device
+const deviceFeeds = await feedsService.getFeedsForDevice('1005963a', {
+  include: ['multipartUrl', 'flvUrl']
+});
+
+// Get only preview feeds
+const previewFeeds = await feedsService.getFeedsForDevice('1005963a', {
+  type: 'preview',
+  include: ['multipartUrl']
+});
+```
+
+#### `getMultipartUrl(deviceId, type = 'preview')`
+Gets the multipart URL for live streaming from a specific device and stream type.
+
+**Parameters:**
+- `deviceId` (string): The device ID (required)
+- `type` (string, optional): Stream type ('main', 'preview', 'talkdown', default: 'preview')
+
+**Returns:** Promise<string|null> - The multipart URL or null if not found
+
+**Example:**
+```javascript
+// Get preview multipart URL (most common for live viewing)
+const previewUrl = await feedsService.getMultipartUrl('1005963a', 'preview');
+if (previewUrl) {
+  // Use URL in img tag for auto-refreshing live stream
+  document.getElementById('liveStream').src = previewUrl;
+} else {
+  console.error('No preview multipart URL found for this camera');
+}
+
+// Get high-quality main stream URL
+const mainUrl = await feedsService.getMultipartUrl('1005963a', 'main');
+```
+
+#### `getAllUrls(deviceId, type = 'preview')`
+Gets all available streaming URLs for a specific device and stream type.
+
+**Parameters:**
+- `deviceId` (string): The device ID (required)
+- `type` (string, optional): Stream type ('main', 'preview', 'talkdown', default: 'preview')
+
+**Returns:** Promise<Object|null> - Object with all available URLs or null if not found
+
+**Response Object Properties:**
+- `flvUrl` (string|null): Flash video URL
+- `rtspUrl` (string|null): RTSP URL
+- `rtspsUrl` (string|null): Secure RTSP URL
+- `localRtspUrl` (string|null): Local bridge RTSP URL
+- `hlsUrl` (string|null): HLS streaming URL
+- `multipartUrl` (string|null): Multipart streaming URL
+- `webRtcUrl` (string|null): WebRTC URL
+- `audioPushHttpsUrl` (string|null): Audio push URL
+
+**Example:**
+```javascript
+// Get all available streaming URLs
+const urls = await feedsService.getAllUrls('1005963a', 'preview');
+
+if (urls) {
+  console.log('Available streaming options:');
+  if (urls.multipartUrl) console.log('Multipart:', urls.multipartUrl);
+  if (urls.flvUrl) console.log('FLV:', urls.flvUrl);
+  if (urls.hlsUrl) console.log('HLS:', urls.hlsUrl);
+  if (urls.rtspUrl) console.log('RTSP:', urls.rtspUrl);
+  if (urls.webRtcUrl) console.log('WebRTC:', urls.webRtcUrl);
+} else {
+  console.error('No feeds found for this camera');
+}
+
+// Use the best available URL for your use case
+const streamUrl = urls?.multipartUrl || urls?.flvUrl || urls?.hlsUrl;
+```
+
+### Stream Types
+
+The feeds service supports three main stream types:
+
+1. **`preview`** - Low resolution, low framerate stream optimized for live monitoring
+2. **`main`** - High resolution, high framerate stream for detailed viewing
+3. **`talkdown`** - Audio stream for two-way communication with speakers
+
+### URL Types and Use Cases
+
+#### **`multipartUrl`** (Recommended for Live Viewing)
+- **Use Case**: Auto-refreshing live images in web browsers
+- **Format**: Multipart HTTPS stream
+- **Benefits**: Automatic updates, works directly in `<img>` tags
+- **Example**: Perfect for dashboard live camera previews
+
+#### **`flvUrl`**
+- **Use Case**: Video streaming in Flash-compatible players
+- **Format**: Flash Video over HTTPS
+- **Benefits**: Supports both live and recorded playback
+- **Example**: Legacy video player integration
+
+#### **`hlsUrl`**
+- **Use Case**: Mobile and modern web video streaming
+- **Format**: HTTP Live Streaming (HLS)
+- **Benefits**: Adaptive bitrate, mobile-friendly
+- **Example**: iOS/Android apps, modern video players
+
+#### **`rtspUrl` / `rtspsUrl`**
+- **Use Case**: Professional video management systems
+- **Format**: Real-Time Streaming Protocol
+- **Benefits**: Low latency, industry standard
+- **Example**: VMS integration, security systems
+
+#### **`webRtcUrl`**
+- **Use Case**: Real-time two-way communication
+- **Format**: WebRTC peer-to-peer
+- **Benefits**: Ultra-low latency, bidirectional
+- **Example**: Intercom systems, live monitoring
+
+### Complete Workflow Examples
+
+#### **Basic Live Stream Setup**
+```javascript
+// 1. Initialize media session for authentication
+await mediaSessionService.initializeMediaSession();
+
+// 2. Get multipart URL for live streaming
+const liveUrl = await feedsService.getMultipartUrl('1005963a', 'preview');
+
+// 3. Display in HTML
+if (liveUrl) {
+  document.getElementById('liveCamera').src = liveUrl;
+} else {
+  console.error('No preview multipart URL found for this camera');
+}
+```
+
+#### **Multi-Camera Dashboard**
+```javascript
+const cameraIds = ['1005963a', '1005963b', '1005963c'];
+
+// Initialize media session once
+await mediaSessionService.initializeMediaSession();
+
+// Get feeds for all cameras
+const allUrls = await Promise.all(
+  cameraIds.map(id => feedsService.getMultipartUrl(id, 'preview'))
+);
+
+// Display all live streams
+allUrls.forEach((url, index) => {
+  if (url) {
+    document.getElementById(`camera-${index}`).src = url;
+  } else {
+    console.error(`No multipart URL found for camera ${cameraIds[index]}`);
+  }
+});
+```
+
+#### **Stream Quality Selection**
+```javascript
+// Get all available URLs for quality selection
+const urls = await feedsService.getAllUrls('1005963a');
+
+// Let user choose quality
+const qualitySelect = document.getElementById('quality');
+if (urls?.multipartUrl) {
+  qualitySelect.innerHTML += '<option value="preview">Preview Quality</option>';
+}
+
+// Get main stream for high quality
+const mainUrls = await feedsService.getAllUrls('1005963a', 'main');
+if (mainUrls?.multipartUrl) {
+  qualitySelect.innerHTML += '<option value="main">High Quality</option>';
+}
+
+// Switch quality based on selection
+qualitySelect.addEventListener('change', async (e) => {
+  const streamUrl = await feedsService.getMultipartUrl('1005963a', e.target.value);
+  if (streamUrl) {
+    document.getElementById('videoPlayer').src = streamUrl;
+  } else {
+    console.error(`No ${e.target.value} stream available for this camera`);
+  }
+});
+```
+
+#### **Complete Vue.js Application Example**
+This example shows the exact pattern used in our Home.vue component:
+
+```javascript
+// Vue.js reactive data
+const cameraId = ref('1005963a')
+const loading = ref(false)
+const error = ref('')
+const cameraInfo = ref(null)
+const multipartUrl = ref(null)
+const streamStatus = ref('Stopped')
+
+// Load camera and initialize live stream
+const loadCamera = async () => {
+  if (!cameraId.value.trim()) {
+    error.value = 'Please enter a camera ID'
+    return
+  }
+
+  loading.value = true
+  error.value = ''
+  cameraInfo.value = null
+  multipartUrl.value = null
+  streamStatus.value = 'Loading...'
+
+  try {
+    // Get camera information
+    const camera = await cameraService.getCameraById(cameraId.value.trim())
+    cameraInfo.value = camera
+
+    // Step 1: Initialize the media session cookie
+    await mediaSessionService.initializeMediaSession()
+    
+    // Step 2: Get the multipart URL using the feeds service
+    const feedMultipartUrl = await feedsService.getMultipartUrl(cameraId.value.trim(), 'preview')
+    
+    if (feedMultipartUrl) {
+      multipartUrl.value = feedMultipartUrl
+      streamStatus.value = 'Live'
+    } else {
+      error.value = 'No preview multipart URL found for this camera'
+      streamStatus.value = 'Error'
+    }
+  } catch (err) {
+    console.error('Error loading camera:', err)
+    error.value = err.message || 'Failed to load camera information'
+    streamStatus.value = 'Error'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load available cameras list
+const loadCameras = async () => {
+  try {
+    const camerasResponse = await cameraService.listCameras({
+      include: ['status'],
+      sort: ['+name'],
+      pageSize: 5
+    })
+    return camerasResponse.results || []
+  } catch (err) {
+    console.error('Error loading cameras:', err)
+    throw err
+  }
+}
+```
+
+## User Service
+
+The User Service provides functionality to interact with EEN User APIs.
+
+### Methods
+
+#### `getUserProfile()`
+Retrieves the current user's profile information.
+
+**Returns:** Promise<Object> - User profile data
+
+## Error Handling
+
+All services implement consistent error handling:
+
+1. Authentication errors are thrown when the user is not authenticated
+2. Configuration errors are thrown when required settings are missing
+3. API errors include detailed error messages from the server
+4. Network errors are properly caught and logged
+
+## Security
+
+All API requests:
+- Require authentication via Bearer token
+- Validate URL schemes before making requests
+- Use HTTPS for all communications
+- Include proper headers for content types
+- Handle sensitive data appropriately
+
+## Best Practices
+
+1. Always check authentication status before making requests
+2. Use appropriate error handling for all API calls
+3. Include proper content types in requests
+4. Handle pagination for list endpoints
+5. Use query parameters for filtering and sorting
+6. Implement proper caching strategies for media content
+
+## Measurements Service
+
+The Measurements Service provides functionality to interact with EEN Measurements APIs for managing sensor measurements and their data.
+
+### Methods
+
+#### `getMeasurementById(measurementId, include = [])`
+Retrieves measurement details by ID.
+
+**Parameters:**
+- `measurementId` (string): The ID of the measurement to fetch
+- `include` (Array<string>, optional): Fields to include (measurementProperties, lastSample, measurementThreshold, locationSummary, sensorSummary)
+
+**Returns:** Promise<Object> - Measurement details
+
+#### `listMeasurements(options = {})`
+Retrieves a paginated list of measurements.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `parentId__in` (Array<string>): List of Parent IDs to filter on
+  - `locationId__in` (Array<string>): List of Location IDs to filter on
+  - `cameraId__in` (Array<string>): List of Camera IDs to filter on
+  - `id__in` (Array<string>): List of Measurement IDs to filter on
+  - `preferred` (boolean): Filter by preferred measurements
+  - `propertyType` (string): Filter by property type
+  - `thresholdLevel` (string): Filter by threshold level
+  - `q` (string): Text search query
+  - `qRelevance__gte` (number): Minimum similarity threshold for text search (0-1)
+  - `include` (Array<string>): Fields to include in response
+  - `sort` (Array<string>): Sorting options (e.g., ['+name', '-qRelevance', '+propertyType'])
+  - `pageToken` (string): Page token for pagination
+  - `pageSize` (number): Number of results per page
+
+**Returns:** Promise<Object> - Paginated list of measurements
+
+#### `updateMeasurement(measurementId, updateData)`
+Updates an existing measurement.
+
+**Parameters:**
+- `measurementId` (string): The ID of the measurement to update
+- `updateData` (Object):
+  - `name` (string, optional): New name
+  - `notes` (string, optional): New notes
+  - `preferred` (boolean, optional): New preferred status
+  - `primaryCameraId` (string, optional): New primary camera ID
+  - `measurementProperties` (Object, optional): New measurement properties
+
+**Returns:** Promise<void>
+
+#### `listMeasurementsFieldValues(options = {})`
+Retrieves available field values for measurements (useful for filtering).
+
+**Parameters:**
+- `options` (Object, optional):
+  - `include` (Array<string>): Fields to include in response (location)
+  - `preferred` (boolean): Filter by preferred measurements
+
+**Returns:** Promise<Object> - Available field values
+
+#### `postSensorThresholdEvent(eventData)`
+Posts a sensor threshold event (internal endpoint).
+
+**Parameters:**
+- `eventData` (Object): Sensor threshold event data
+
+**Returns:** Promise<void>
+
+## Sensor Gateways Service
+
+The Sensor Gateways Service provides functionality to interact with EEN Sensor Gateway APIs for managing sensor gateway devices.
+
+### Methods
+
+#### `listSensorGateways(options = {})`
+Retrieves a paginated list of sensor gateways.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `locationId__in` (Array<string>): List of Location IDs to filter on
+  - `id__in` (Array<string>): List of Sensor Gateway IDs to filter on
+  - `q` (string): Text search query
+  - `qRelevance__gte` (number): Minimum similarity threshold (0-1)
+  - `include` (Array<string>): Fields to include in response
+  - `sort` (Array<string>): Sort fields
+  - `pageToken` (string): Pagination token
+  - `pageSize` (number): Number of items per page
+
+**Returns:** Promise<Object> - Paginated response with sensor gateways
+
+#### `getSensorGateway(sensorGatewayId, include = [])`
+Retrieves a specific sensor gateway by ID.
+
+**Parameters:**
+- `sensorGatewayId` (string): The ID of the sensor gateway
+- `include` (Array<string>, optional): Fields to include in response
+
+**Returns:** Promise<Object> - Sensor gateway details
+
+#### `createSensorGateway(data)`
+Creates a new sensor gateway.
+
+**Parameters:**
+- `data` (Object):
+  - `name` (string): Name of the sensor gateway
+  - `connectId` (string): Connect ID for the sensor gateway
+  - `locationId` (string, optional): Optional location ID
+
+**Returns:** Promise<Object> - Created sensor gateway
+
+#### `updateSensorGateway(sensorGatewayId, data)`
+Updates an existing sensor gateway.
+
+**Parameters:**
+- `sensorGatewayId` (string): The ID of the sensor gateway to update
+- `data` (Object):
+  - `name` (string, optional): New name
+  - `notes` (string, optional): New notes
+  - `locationId` (string, optional): New location ID
+  - `timeZone` (Object, optional): New timezone settings
+
+**Returns:** Promise<void>
+
+#### `deleteSensorGateway(sensorGatewayId)`
+Deletes a sensor gateway.
+
+**Parameters:**
+- `sensorGatewayId` (string): The ID of the sensor gateway to delete
+
+**Returns:** Promise<void>
+
+## Sensor Summary Service
+
+The Sensor Summary Service provides functionality to retrieve sensor summaries with aggregated data.
+
+### Methods
+
+#### `listSensorSummary(options = {})`
+Retrieves sensor summaries visible to the current user.
+
+**Parameters:**
+- `options` (Object, optional):
+  - `preferred` (boolean): If true, only preferred measurements are returned. If false, only non-preferred. If omitted, all are returned.
+
+**Returns:** Promise<Object> - Paginated response with sensor summaries 
+
+## LivePlayer Integration
+
+The LivePlayer provides high-quality live video streaming capabilities using the `@een/live-video-web-sdk` package. This integration allows seamless switching between preview images and high-definition live video streams.
+
+### Installation
+
+The LivePlayer SDK is already included in this project:
+
+```json
+"dependencies": {
+  "@een/live-video-web-sdk": "^1.9.2"
+}
+```
+
+### Basic Usage
+
+#### Import and Setup
+
+```javascript
+import LivePlayer from '@een/live-video-web-sdk'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+// Reactive state
+const showLivePlayer = ref(false)
+const livePlayerLoading = ref(false)
+const livePlayerConnected = ref(false)
+const livePlayerError = ref('')
+let livePlayerInstance = null
+```
+
+#### HTML Template
+
+```html
+<template>
+  <!-- Video container for LivePlayer -->
+  <div v-if="showLivePlayer" class="video-container">
+    <video 
+      id="livePlayerVideo" 
+      autoplay 
+      muted 
+      controls
+      class="w-full h-full object-contain"
+      @error="handleVideoError"
+    />
+    
+    <!-- Loading overlay -->
+    <div v-if="livePlayerLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading HD video stream...</p>
+    </div>
+  </div>
+</template>
+```
+
+#### LivePlayer Configuration
+
+```javascript
+const initializeLivePlayer = async () => {
+  livePlayerLoading.value = true
+  livePlayerError.value = ''
+  livePlayerConnected.value = false
+
+  try {
+    const videoElement = document.getElementById('livePlayerVideo')
+    if (!videoElement) {
+      throw new Error('Video element not found')
+    }
+
+    // Configuration object
+    const config = {
+      videoElement: videoElement,
+      cameraId: "1005963a", // Your camera ID
+      baseUrl: "https://api.c000.eagleeyenetworks.com", // Your EEN API base URL
+      jwt: "eyJraWQiOi..." // Your authentication JWT token
+    }
+
+    // Create and start LivePlayer instance
+    livePlayerInstance = new LivePlayer()
+    
+    // Optional: Set up event listeners
+    if (livePlayerInstance.addEventListener) {
+      livePlayerInstance.addEventListener('connected', () => {
+        livePlayerConnected.value = true
+        livePlayerLoading.value = false
+      })
+      
+      livePlayerInstance.addEventListener('disconnected', () => {
+        livePlayerConnected.value = false
+      })
+      
+      livePlayerInstance.addEventListener('error', (error) => {
+        console.error('LivePlayer error:', error)
+        livePlayerError.value = error.message || 'LivePlayer error occurred'
+        livePlayerConnected.value = false
+        livePlayerLoading.value = false
+      })
+    }
+
+    // Start the live stream
+    await livePlayerInstance.start(config)
+    
+    // If no event listeners, set connected after start
+    if (!livePlayerInstance.addEventListener) {
+      livePlayerConnected.value = true
+      livePlayerLoading.value = false
+    }
+
+  } catch (err) {
+    console.error('Error initializing LivePlayer:', err)
+    livePlayerError.value = err.message || 'Failed to initialize video player'
+    livePlayerConnected.value = false
+    livePlayerLoading.value = false
+  }
+}
+```
+
+#### Cleanup and Resource Management
+
+```javascript
+const cleanup = () => {
+  if (livePlayerInstance) {
+    try {
+      livePlayerInstance.stop()
+    } catch (err) {
+      console.warn('Error stopping LivePlayer:', err)
+    }
+    livePlayerInstance = null
+  }
+}
+
+// Cleanup when component unmounts
+onBeforeUnmount(() => {
+  cleanup()
+})
+
+// Cleanup when switching away from live player
+const switchToPreview = () => {
+  cleanup()
+  showLivePlayer.value = false
+  livePlayerConnected.value = false
+  livePlayerError.value = ''
+}
+```
+
+### Integration Example (Vue 3 Composition API)
+
+Here's a complete example of how LivePlayer is integrated in the Home.vue component:
+
+```javascript
+<template>
+  <div class="camera-viewer">
+    <!-- Preview Image (default view) -->
+    <div v-if="!showLivePlayer" 
+         class="preview-container"
+         @click="switchToLivePlayer">
+      <img :src="multipartUrl" alt="Camera Preview" />
+      <div class="click-overlay">
+        🎥 Click for HD Video
+      </div>
+    </div>
+
+    <!-- LivePlayer Video (HD view) -->
+    <div v-else class="live-player-container">
+      <video 
+        id="livePlayerVideo" 
+        autoplay 
+        muted 
+        controls
+        @error="handleVideoError"
+      />
+      
+      <div v-if="livePlayerLoading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading HD video stream...</p>
+      </div>
+      
+      <button @click="switchToPreview" class="back-button">
+        Back to Preview
+      </button>
+    </div>
+
+    <!-- Status Display -->
+    <div class="status-info">
+      <p>Status: {{ showLivePlayer ? (livePlayerConnected ? 'HD Connected' : 'HD Disconnected') : 'Preview Active' }}</p>
+      <div v-if="showLivePlayer" class="stream-info">
+        <span>Quality: High Definition</span>
+        <span>Protocol: WebRTC/HLS</span>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div v-if="livePlayerError" class="error-message">
+      {{ livePlayerError }}
+    </div>
+  </div>
+</template>
+
+<script setup>
+import LivePlayer from '@een/live-video-web-sdk'
+import { ref, onBeforeUnmount, nextTick } from 'vue'
+import { useAuthStore } from '../stores/auth'
+
+const authStore = useAuthStore()
+
+// Reactive state
+const showLivePlayer = ref(false)
+const livePlayerLoading = ref(false)
+const livePlayerConnected = ref(false)
+const livePlayerError = ref('')
+const multipartUrl = ref('') // From feeds service
+let livePlayerInstance = null
+
+// Switch from preview image to LivePlayer
+const switchToLivePlayer = async () => {
+  if (!cameraId.value || !authStore.token) {
+    livePlayerError.value = 'Camera ID and authentication token are required'
+    return
+  }
+
+  showLivePlayer.value = true
+  await nextTick()
+  await initializeLivePlayer()
+}
+
+// Switch back to preview image
+const switchToPreview = () => {
+  cleanup()
+  showLivePlayer.value = false
+  livePlayerConnected.value = false
+  livePlayerError.value = ''
+}
+
+// Initialize LivePlayer with authentication
+const initializeLivePlayer = async () => {
+  livePlayerLoading.value = true
+  livePlayerError.value = ''
+
+  try {
+    const videoElement = document.getElementById('livePlayerVideo')
+    const baseUrl = authStore.baseUrl || `https://api.${authStore.subdomain}.eagleeyenetworks.com`
+    
+    const config = {
+      videoElement: videoElement,
+      cameraId: cameraId.value,
+      baseUrl: baseUrl,
+      jwt: authStore.token
+    }
+
+    livePlayerInstance = new LivePlayer()
+    await livePlayerInstance.start(config)
+    
+    livePlayerConnected.value = true
+    livePlayerLoading.value = false
+  } catch (err) {
+    livePlayerError.value = err.message || 'Failed to initialize video player'
+    livePlayerLoading.value = false
+  }
+}
+
+// Cleanup resources
+const cleanup = () => {
+  if (livePlayerInstance) {
+    try {
+      livePlayerInstance.stop()
+    } catch (err) {
+      console.warn('Error stopping LivePlayer:', err)
+    }
+    livePlayerInstance = null
+  }
+}
+
+// Handle video errors
+const handleVideoError = (event) => {
+  console.error('Video error:', event)
+  livePlayerError.value = 'Video playback error occurred'
+  livePlayerConnected.value = false
+}
+
+onBeforeUnmount(() => {
+  cleanup()
+})
+</script>
+```
+
+### Configuration Options
+
+The LivePlayer accepts the following configuration options:
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `videoElement` | HTMLVideoElement | Yes | The video DOM element for playback |
+| `cameraId` | string | Yes | The EEN camera ID to stream from |
+| `baseUrl` | string | Yes | The EEN API base URL (e.g., `https://api.c000.eagleeyenetworks.com`) |
+| `jwt` | string | Yes | Valid JWT authentication token |
+
+### Event Handling
+
+The LivePlayer may support the following events (if available in your SDK version):
+
+- `connected` - Fired when the live stream connection is established
+- `disconnected` - Fired when the live stream connection is lost
+- `error` - Fired when an error occurs during streaming
+
+### Best Practices
+
+1. **Authentication**: Always ensure valid JWT tokens before initializing LivePlayer
+2. **Cleanup**: Properly stop LivePlayer instances when components unmount or switch views
+3. **Error Handling**: Implement comprehensive error handling for network and streaming issues
+4. **Loading States**: Show loading indicators while the stream initializes
+5. **Responsive Design**: Ensure video containers adapt to different screen sizes
+6. **User Experience**: Provide clear status indicators and easy navigation between views
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Video Element Not Found**: Ensure the video element exists in DOM before initializing
+2. **Authentication Errors**: Verify JWT token is valid and not expired
+3. **Network Issues**: Check network connectivity and firewall settings
+4. **Browser Compatibility**: Ensure browser supports WebRTC and modern video codecs
+5. **Camera Offline**: Verify camera is online and accessible through EEN API
+
+**Debug Tips:**
+
+- Check browser console for detailed error messages
+- Verify camera ID is correct and accessible
+- Test authentication with other EEN API endpoints first
+- Use browser developer tools to inspect network requests
